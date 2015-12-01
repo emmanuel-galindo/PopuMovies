@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,10 +16,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.popumovies.adapter.MovieAdapter;
 import com.popumovies.data.MovieContract.MovieEntry;
 
 /**
@@ -28,8 +30,10 @@ public class MainActivityFragment extends Fragment
 
     public static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private MovieAdapter mMovieAdapter;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
-    private GridView mGridView;
     private int mPosition = ListView.INVALID_POSITION;
 
     private static final String SELECTED_KEY = "selected_position";
@@ -52,8 +56,8 @@ public class MainActivityFragment extends Fragment
     // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
     // must change.
     static final int COLUMN_TMDB_ID = 1;
-    static final int COLUMN_ORIGINAL_TITLE = 3;
-    static final int COLUMN_POSTER_PATH = 6;
+    public static final int COLUMN_ORIGINAL_TITLE = 3;
+    public static final int COLUMN_POSTER_PATH = 6;
 
 
 
@@ -84,31 +88,44 @@ public class MainActivityFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // The MovieAdapter will take data from a source and
+        // The MovieAdapter  will take data from a source and
         // use it to populate the ListView it's attached to.
         mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
 
-        // Get a reference to the ListView, and attach this adapter to it.
-        mGridView = (GridView) rootView.findViewById(R.id.gridview);
-        mGridView.setAdapter(mMovieAdapter);
+//        // Get a reference to the ListView, and attach this adapter to it.
+//        getActivity().setContentView(R.layout.fragment_main);
+//        mRecyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
+
+
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+
+        // use a grid layout manager, 2nd arguments is qt
+        mLayoutManager = new GridLayoutManager(getActivity(),2);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+
+        mRecyclerView.setAdapter(mMovieAdapter);
         // We'll call our MainActivity
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                // CursorAdapter returns a cursor at the correct position for getItem(), or null
-                // if it cannot seek to that position.
-                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-                if (cursor != null) {
-//                    String sortBy = Utility.getPreferredLocation(getActivity());
-                    ((Callback) getActivity())
-                            .onItemSelected(MovieEntry.buildSingleMovieUri(cursor.getLong(COLUMN_TMDB_ID)));
-                }
-                mPosition = position;
-            }
-        });
+//        mRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+//                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+//                // if it cannot seek to that position.
+//                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+//                if (cursor != null) {
+////                    String sortBy = Utility.getPreferredLocation(getActivity());
+//                    ((Callback) getActivity())
+//                            .onItemSelected(MovieEntry.buildSingleMovieUri(cursor.getLong(COLUMN_TMDB_ID)));
+//                }
+//                mPosition = position;
+//            }
+//        });
 
         // If there's instance state, mine it for useful information.
         // The end-goal here is that the user never knows that turning their device sideways
@@ -157,11 +174,11 @@ public class MainActivityFragment extends Fragment
         // old cursor once we return.)
         mMovieAdapter.swapCursor(data);
         if (mPosition != GridView.INVALID_POSITION) {
-            mGridView.smoothScrollToPosition(mPosition);
+            mRecyclerView.smoothScrollToPosition(mPosition);
             // meant for two pane , if this is the first time we load the list,
             // check the first item in list
             if (mPosition == 0) {
-                mGridView.setItemChecked(mPosition, true);
+//                mRecyclerView.setItemChecked(mPosition, true);
             }
         }
     }
