@@ -21,22 +21,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-public class FetchMoviesTask extends AsyncTask<Void,Void,Void> {
+public class FetchMoviesTask extends AsyncTask<Void,Void,String> {
     private static String LOG_TAG = FetchMoviesTask.class.getSimpleName();
-    private static String DEFAULT_SORT_BY = "popularity.desc";
+    private final String mSortBy;
     Context mContext;
-    String mSortBy;
 
-    public FetchMoviesTask(Context context) {
+    public FetchMoviesTask(Context context,String sortBy ) {
         super();
         mContext = context;
+        mSortBy = sortBy;
 
-        // get the sort_by preference
-        mSortBy = PrefUtil.getString(mContext,"sort_by",DEFAULT_SORT_BY);
     }
 
     @Override
-    protected Void doInBackground(Void... params) {
+    protected String doInBackground(Void... params) {
 
 
         // These two need to be declared outside the try/catch
@@ -53,14 +51,22 @@ public class FetchMoviesTask extends AsyncTask<Void,Void,Void> {
             // Possible parameters are avaiable at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
             //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=
-            final String MOVIES_BASE_URL =
-                    "http://api.themoviedb.org/3/discover/movie?";
-            final String SORT_BY = "sort_by";
+            // get the sort_by preference
+            int idSortBy = PrefUtil.getInt(
+                    mContext, "sort_by", R.id.action_sort_popularity);
+            String sortBy;
+            if (idSortBy == R.id.action_sort_popularity)
+                sortBy = mContext.getString(R.string.sort_popularity);
+            else
+                sortBy = mContext.getString(R.string.sort_votes);
+//            final String MOVIES_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
+            final String MOVIES_BASE_URL = "http://api.themoviedb.org/3/movie/"+mSortBy+"?";
             final String API_KEY = "api_key";
 
+            String api_key = "ba7a9d0e2fb18d7d47b1b4bfaabc4d04";
+
             Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
-                    .appendQueryParameter(SORT_BY, mSortBy)
-                    .appendQueryParameter(API_KEY, "ba7a9d0e2fb18d7d47b1b4bfaabc4d04")
+                    .appendQueryParameter(API_KEY, api_key)
                     .build();
 
             Log.d(LOG_TAG, "Opening "+builtUri.toString());
@@ -93,6 +99,7 @@ public class FetchMoviesTask extends AsyncTask<Void,Void,Void> {
                 return null;
             }
             moviesJsonStr  = buffer.toString();
+
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attemping
@@ -111,19 +118,21 @@ public class FetchMoviesTask extends AsyncTask<Void,Void,Void> {
             }
         }
 
+
+        return moviesJsonStr;
+    }
+
+    @Override
+    protected void onPostExecute(String moviesJsonStr) {
+//        super.onPostExecute(aVoid);
         try {
-            return getMoviesDataFromJson(moviesJsonStr);
+            getMoviesDataFromJson(moviesJsonStr);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
+        return;
         // This will only happen if there was an error getting or parsing the forecast.
-        return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
     }
 
     public Void getMoviesDataFromJson(String forecastJsonStr)

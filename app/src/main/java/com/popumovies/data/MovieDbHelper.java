@@ -20,6 +20,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.popumovies.data.MovieContract.MovieEntry;
+import com.popumovies.data.MovieContract.VideoEntry;
+import com.popumovies.data.MovieContract.ReviewEntry;
 
 
 /**
@@ -28,7 +30,7 @@ import com.popumovies.data.MovieContract.MovieEntry;
 public class MovieDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 12;
 
     public static final String DATABASE_NAME = "popumovies.db";
 
@@ -43,11 +45,6 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
 
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                // Why AutoIncrement here, and not above?
-                // Unique keys will be auto-generated in either case.  But for movie
-                // forecasting, it's reasonable to assume the user will want information
-                // for a certain date and all dates *following*, so the forecast data
-                // should be sorted accordingly.
                 MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 MovieEntry.COLUMN_TMDB_ID + " INTEGER NOT NULL, " +
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL, " +
@@ -58,12 +55,32 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_VOTE_AVERAGE + " NUMERIC NOT NULL, " +
                 MovieEntry.COLUMN_VOTE_COUNT + " INTEGER NOT NULL, " +
                 MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " +
-
-                // To assure the application have just one movie entry per day
-                // per location, it's created a UNIQUE constraint with REPLACE strategy
+                MovieEntry.COLUMN_FAVORITE + " BOOLEAN DEFAULT FALSE NOT NULL ON CONFLICT IGNORE, " +
                 " UNIQUE (" + MovieEntry.COLUMN_TMDB_ID + ") ON CONFLICT REPLACE);";
 
+        final String SQL_CREATE_VIDEO_TABLE = "CREATE TABLE " + VideoEntry.TABLE_NAME + " (" +
+                VideoEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                VideoEntry.COLUMN_TMDB_ID + " INTEGER NOT NULL, " +
+                VideoEntry.COLUMN_ISO6391 + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_ISO31661 + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_KEY + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_SITE + " TEXT NOT NULL, " +
+                VideoEntry.COLUMN_SIZE + " INTEGER NOT NULL, " +
+                VideoEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
+                " UNIQUE (" + VideoEntry.COLUMN_KEY + ") ON CONFLICT REPLACE);";
+
+        final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + " (" +
+                ReviewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                ReviewEntry.COLUMN_TMDB_ID + " INTEGER NOT NULL, " +
+                ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
+                ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
+                ReviewEntry.COLUMN_URL + " TEXT NOT NULL)";
+
+
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_VIDEO_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_REVIEW_TABLE);
     }
 
     @Override
@@ -75,6 +92,8 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         // If you want to update the schema without wiping data, commenting out the next 2 lines
         // should be your top priority before modifying this method.
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + VideoEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ReviewEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }
