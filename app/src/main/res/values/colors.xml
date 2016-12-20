@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="grey">#cccccc</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="tasklist_menu_dividerline_grey">#111111</color>
+    <color name="blue">#045CB1</color>
+
+</resources>

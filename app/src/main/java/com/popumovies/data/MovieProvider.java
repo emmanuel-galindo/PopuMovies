@@ -20,10 +20,15 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
+
+import com.popumovies.data.MovieContract.MovieEntry;
+import com.popumovies.data.MovieContract.VideoEntry;
+import com.popumovies.data.MovieContract.ReviewEntry;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,23 +42,72 @@ public class MovieProvider extends ContentProvider {
     private MovieDbHelper mOpenHelper;
 
     static final int MOVIE = 100;
+    static final int MOVIE_WITH_ID = 101;
+    static final int MOVIE_POPULAR = 102;
+    static final int MOVIE_HIGH_RATED = 103;
+    static final int MOVIE_FAVORITE = 104;
+    static final int MOVIE_WITH_VIDEO = 105;
+    static final int MOVIE_WITH_REVIEW = 106;
+    static final int VIDEO = 107;
+    static final int REVIEW = 108;
 
-    private static final SQLiteQueryBuilder sMovieQueryBuilder;
+    private static final SQLiteQueryBuilder sMovieWithVideoQueryBuilder;
+    private static final SQLiteQueryBuilder sMovieWithReviewQueryBuilder;
+
+
 
     static{
-        sMovieQueryBuilder = new SQLiteQueryBuilder();
-        
+        sMovieWithVideoQueryBuilder = new SQLiteQueryBuilder();
+
         //This is an inner join which looks like
-        //movie INNER JOIN location ON movie.location_id = location._id
-        sMovieQueryBuilder.setTables(MovieContract.MovieEntry.TABLE_NAME);
+        //movie INNER JOIN video ON movie.tmdb_id = video.tmdb_id
+        sMovieWithVideoQueryBuilder.setTables(MovieEntry.TABLE_NAME);
+        sMovieWithVideoQueryBuilder.setTables(
+                MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        VideoEntry.TABLE_NAME +
+                        " ON " + MovieEntry.TABLE_NAME +
+                        "." + MovieEntry.COLUMN_TMDB_ID +
+                        " = " + VideoEntry.TABLE_NAME +
+                        "." + VideoEntry.COLUMN_TMDB_ID);
     }
 
-    /*
-        Students: Here is where you need to create the UriMatcher. This UriMatcher will
-        match each URI to the MOVIE, MOVIE_WITH_LOCATION, MOVIE_WITH_LOCATION_AND_DATE,
-        and LOCATION integer constants defined above.  You can test this by uncommenting the
-        testUriMatcher test within TestUriMatcher.
-     */
+    static{
+        sMovieWithReviewQueryBuilder = new SQLiteQueryBuilder();
+
+        //This is an inner join which looks like
+        //movie INNER JOIN review ON movie.tmdb_id = review.tmdb_id
+        sMovieWithReviewQueryBuilder.setTables(MovieEntry.TABLE_NAME);
+        sMovieWithReviewQueryBuilder.setTables(
+                MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        ReviewEntry.TABLE_NAME +
+                        " ON " + MovieEntry.TABLE_NAME +
+                        "." + MovieEntry.COLUMN_TMDB_ID +
+                        " = " + ReviewEntry.TABLE_NAME +
+                        "." + ReviewEntry.COLUMN_TMDB_ID);
+    }
+
+
+
+    private static final SQLiteQueryBuilder sMovieQueryBuilder;
+    static{
+        sMovieQueryBuilder = new SQLiteQueryBuilder();
+        sMovieQueryBuilder.setTables(MovieEntry.TABLE_NAME);
+    }
+
+    private static final String sMovieIdSelection =
+            MovieEntry.TABLE_NAME +
+                    "." + MovieEntry.COLUMN_ID + " = ?";
+
+
+    private static final String sMovieTmdbIdSelection =
+            MovieEntry.TABLE_NAME +
+                    "." + MovieEntry.COLUMN_TMDB_ID + " = ?";
+
+    private static final String sMovieFavoriteSelection =
+            MovieEntry.TABLE_NAME +
+                    "." + MovieEntry.COLUMN_FAVORITE + " = ?";
+
+
     static UriMatcher buildUriMatcher() {
         // I know what you're thinking.  Why create a UriMatcher when you can use regular
         // expressions instead?  Because you're not crazy, that's why.
@@ -65,7 +119,14 @@ public class MovieProvider extends ContentProvider {
         final String authority = MovieContract.CONTENT_AUTHORITY;
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIE);
-
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#", MOVIE_WITH_ID);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/popular", MOVIE_POPULAR);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/high_rated", MOVIE_HIGH_RATED);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/favorite", MOVIE_FAVORITE);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/video", MOVIE_WITH_VIDEO);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/#/review", MOVIE_WITH_REVIEW);
+        matcher.addURI(authority, MovieContract.PATH_VIDEO, VIDEO);
+        matcher.addURI(authority, MovieContract.PATH_REVIEW, REVIEW);
         return matcher;
     }
 
@@ -89,7 +150,13 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             // Student: Uncomment and fill out these two cases
             case MOVIE:
-                return MovieContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_POPULAR:
+            case MOVIE_HIGH_RATED:
+            case MOVIE_FAVORITE:
+            case MOVIE_WITH_VIDEO:
+                return MovieEntry.CONTENT_TYPE;
+            case MOVIE_WITH_ID:
+                return MovieEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -105,7 +172,7 @@ public class MovieProvider extends ContentProvider {
             // "movie"
             case MOVIE: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
-                        MovieContract.MovieEntry.TABLE_NAME,
+                        MovieEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -115,7 +182,66 @@ public class MovieProvider extends ContentProvider {
                 );
                 break;
             }
+            case MOVIE_WITH_ID: {
+                long id = Long.parseLong(uri.getPathSegments().get(1));
 
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieEntry.TABLE_NAME,
+                        projection,
+                        sMovieIdSelection,
+                        new String[]{Long.toString(id)},
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            case MOVIE_POPULAR: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        MovieEntry.COLUMN_POPULARITY + " DESC",
+                        "20"
+                );
+                break;
+            }
+            case MOVIE_HIGH_RATED: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        MovieEntry.COLUMN_VOTE_AVERAGE + " DESC",
+                        "20"
+                );
+                break;
+            }
+            case MOVIE_FAVORITE: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieEntry.TABLE_NAME,
+                        projection,
+                        sMovieFavoriteSelection,
+                        new String[]{"1"},
+                        null,
+                        null,
+                        null
+                );
+                break;
+            }
+            case MOVIE_WITH_VIDEO: {
+                retCursor = getMovieWithVideo(uri, VideoEntry.VIDEO_COLUMNS, sortOrder);
+                break;
+            }
+            case MOVIE_WITH_REVIEW: {
+                retCursor = getMovieWithReview(uri, ReviewEntry.REVIEW_COLUMNS, sortOrder);
+                break;
+            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -123,10 +249,32 @@ public class MovieProvider extends ContentProvider {
         return retCursor;
     }
 
+    private Cursor getMovieWithVideo(Uri uri, String[] projection, String sortOrder) {
+        long id = Long.parseLong(uri.getPathSegments().get(1));
 
-    /*
-        Student: Add the ability to insert Locations to the implementation of this function.
-     */
+        return sMovieWithVideoQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                sMovieIdSelection,
+                new String[]{Long.toString(id)},
+                null,
+                null,
+                sortOrder
+        );
+    }
+
+    private Cursor getMovieWithReview(Uri uri, String[] projection, String sortOrder) {
+        long id = Long.parseLong(uri.getPathSegments().get(1));
+
+        return sMovieWithReviewQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                sMovieIdSelection,
+                new String[]{Long.toString(id)},
+                null,
+                null,
+                sortOrder
+        );
+    }
+
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -136,9 +284,9 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE: {
                 normalizeDate(values);
-                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                long _id = db.insert(MovieEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
-                    returnUri = MovieContract.MovieEntry.buildSingleMovieUri(_id);
+                    returnUri = MovieEntry.buildSingleMovieUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -160,7 +308,15 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
                 rowsDeleted = db.delete(
-                        MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+                        MovieEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case VIDEO:
+                rowsDeleted = db.delete(
+                        VideoEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case REVIEW:
+                rowsDeleted = db.delete(
+                        ReviewEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -174,12 +330,12 @@ public class MovieProvider extends ContentProvider {
 
     private void normalizeDate(ContentValues values) {
         // normalize the date value
-        if (values.containsKey(MovieContract.MovieEntry.COLUMN_RELEASE_DATE)) {
+        if (values.containsKey(MovieEntry.COLUMN_RELEASE_DATE)) {
             Date date;
             try {
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                 date = format.parse((String) values.get(
-                        MovieContract.MovieEntry.COLUMN_RELEASE_DATE));
+                        MovieEntry.COLUMN_RELEASE_DATE));
             }
             catch (ParseException ex) {
                 // why it has to fail that hard?
@@ -187,7 +343,7 @@ public class MovieProvider extends ContentProvider {
                 Log.d(LOG_TAG, ex.getMessage());
             }
             long dateValue = date.getTime();
-            values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, dateValue);
+            values.put(MovieEntry.COLUMN_RELEASE_DATE, dateValue);
 
 
         }
@@ -203,9 +359,16 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
                 normalizeDate(values);
-                rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection,
+                rowsUpdated = db.update(MovieEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
+            case MOVIE_WITH_ID: {
+                long id = Long.parseLong(uri.getPathSegments().get(1));
+                rowsUpdated = db.update(MovieEntry.TABLE_NAME, values,
+                        sMovieIdSelection, new String[]{Long.toString(id)});
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -219,14 +382,69 @@ public class MovieProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+        int returnCount = 0;
         switch (match) {
             case MOVIE:
                 db.beginTransaction();
-                int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
                         normalizeDate(value);
-                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+//                        long _id = db.insert(MovieEntry.TABLE_NAME, null, value);
+//                        if (_id != -1) {
+//                            returnCount++;
+//                        }
+                        /* Custom insert query to allow the use of coalesce to
+                        replace on conflict w/out removing the favorites flag, and updating the
+                        favorites data to current
+                         */
+                        String INSERT_MOVIE = "INSERT INTO movie(popularity,vote_average,title," +
+                                "original_title,tmdb_id,release_date,poster_path,vote_count,"+
+                                "overview,favorite) VALUES (?,?,?,?,?,?,?,?,?," +
+                                "coalesce((select favorite from movie where tmdb_id = ?),0))";
+                        Object[] bindArgs = null;
+                        int size = (value != null && value.size() > 0)
+                                ? value.size() : 0;
+                        if (size > 0) {
+                            bindArgs = new Object[size+1];
+                            int i = 0;
+                            for (String colName : value.keySet()) {
+                                bindArgs[i++] = value.get(colName);
+                            }
+                            bindArgs[i] = value.get(MovieEntry.COLUMN_TMDB_ID);
+                        }
+                        db.execSQL(INSERT_MOVIE,bindArgs);
+                        long _id = DatabaseUtils.longForQuery(
+                                db, "SELECT CASE changes() WHEN 0 THEN -1 ELSE last_insert_rowid() END", null);
+                        if (_id > 0) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case VIDEO:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(VideoEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case REVIEW:
+                db.beginTransaction();
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(ReviewEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }

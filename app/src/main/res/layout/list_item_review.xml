@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <!--<ImageView-->
+    <!--android:id="@+id/list_item_poster"-->
+    <!--android:layout_width="match_parent"-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--style="@style/posterHeight"-->
+     <!--/>-->
+<FrameLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/textview_list_item_author"
+        android:text="A review by Pepe"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:padding="6dp"
+        android:background="#88e4db"
+        android:textStyle="bold"
+        />
+    <com.popumovies.utils.ExpandableTextView
+        android:id="@+id/textview_list_item_review"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/debug_text"
+        android:fontFamily="sans-serif-condensed"
+        android:textAppearance="?android:textAppearanceSmall"
+        android:padding="6dp"
+        />
+
+    </LinearLayout>
+</FrameLayout>

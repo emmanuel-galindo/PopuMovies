@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    android:src=""
+    <!--<item android:state_pressed="true"-->
+        <!--android:drawable="@android:drawable/btn_star_big_on" /> &lt;!&ndash; pressed &ndash;&gt;-->
+    <item android:state_selected="true"
+        android:drawable="@android:drawable/btn_star_big_on" /> <!-- default -->
+    <item android:state_selected="false"
+        android:drawable="@android:drawable/btn_star_big_off" /> <!-- default -->
+
+    <item android:drawable="@android:drawable/btn_star_big_off" /> <!-- default -->
+</selector>
