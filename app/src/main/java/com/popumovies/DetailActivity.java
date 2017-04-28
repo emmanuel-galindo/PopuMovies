@@ -9,6 +9,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.popumovies.adapter.CursorPagerAdapter;
@@ -35,8 +36,6 @@ public class DetailActivity extends AppCompatActivity
      * and next wizard steps.
      */
     private ViewPager mPager;
-    // The callbacks through which we will interact with the LoaderManager.
-    private LoaderManager.LoaderCallbacks<Cursor> mCallbacks;
 
     /**
      * The pager adapter, which provides the pages to the view pager widget.
@@ -47,6 +46,7 @@ public class DetailActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(LOG_TAG,"onCreate");
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
@@ -60,6 +60,10 @@ public class DetailActivity extends AppCompatActivity
         //TODO: when the app is open in landscape, and then rotated, a new movie is selected, and then rotated again: should it create a new instance? it is going to mainactivity with savedinstance null
         boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
         if (tabletSize && getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE ) {
+            // un par de tiros
+            getSupportFragmentManager().beginTransaction().commitAllowingStateLoss();
+            getSupportFragmentManager().executePendingTransactions();
+            
             finish();
 //            Intent listIntent = new Intent(this, MainActivity.class)
 //                    .putExtra("pos",mPosition)
@@ -79,8 +83,8 @@ public class DetailActivity extends AppCompatActivity
         mPager.setAdapter(mPagerAdapter);
         // Prepare the loader.  Either re-connect with an existing one,
         // or start a new one.
-        mCallbacks = this;
-        getSupportLoaderManager().initLoader(ACTIVITY_DETAIL_LOADER, null, mCallbacks);
+        LoaderManager.LoaderCallbacks<Cursor> callbacks = this;
+        getSupportLoaderManager().initLoader(ACTIVITY_DETAIL_LOADER, null, callbacks);
     }
 
 //    @Override

@@ -2,11 +2,20 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:background">@null</item>
+        <!-- Set ActionBar background color -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
-    <!--<style name="posterHeight">-->
-        <!--<item name="android:layout_height">310dp</item>-->
-    <!--</style>-->
+
+    <style name="AppTheme.ActionBar.Transparent" parent="AppTheme">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="colorPrimary">@android:color/transparent</item>
+    </style>
+
+    <!-- Theme for the swipe help -->
     <style name="Theme.AppCompat.Translucent" parent="Theme.AppCompat.NoActionBar">
         <item name="android:background">#33000000</item> <!-- Or any color you need -->
         <item name="android:windowNoTitle">true</item>

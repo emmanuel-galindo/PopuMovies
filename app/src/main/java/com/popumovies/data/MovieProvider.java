@@ -24,32 +24,38 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.popumovies.data.MovieContract.MovieEntry;
-import com.popumovies.data.MovieContract.VideoEntry;
 import com.popumovies.data.MovieContract.ReviewEntry;
+import com.popumovies.data.MovieContract.VideoEntry;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
+import static com.popumovies.data.MovieContract.VideoEntry.VIDEO_COLUMNS;
 
 public class MovieProvider extends ContentProvider {
-    private static String LOG_TAG = ContentProvider.class.getSimpleName();
+    private static final String LOG_TAG = ContentProvider.class.getSimpleName();
 
     // The URI Matcher used by this content provider.
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDbHelper mOpenHelper;
 
-    static final int MOVIE = 100;
-    static final int MOVIE_WITH_ID = 101;
-    static final int MOVIE_POPULAR = 102;
-    static final int MOVIE_HIGH_RATED = 103;
-    static final int MOVIE_FAVORITE = 104;
-    static final int MOVIE_WITH_VIDEO = 105;
-    static final int MOVIE_WITH_REVIEW = 106;
-    static final int VIDEO = 107;
-    static final int REVIEW = 108;
+    private static final int MOVIE = 100;
+    private static final int MOVIE_WITH_ID = 101;
+    private static final int MOVIE_POPULAR = 102;
+    private static final int MOVIE_HIGH_RATED = 103;
+    private static final int MOVIE_FAVORITE = 104;
+    private static final int MOVIE_WITH_VIDEO = 105;
+    private static final int MOVIE_WITH_REVIEW = 106;
+    private static final int VIDEO = 107;
+    private static final int REVIEW = 108;
 
     private static final SQLiteQueryBuilder sMovieWithVideoQueryBuilder;
     private static final SQLiteQueryBuilder sMovieWithReviewQueryBuilder;
@@ -108,7 +114,7 @@ public class MovieProvider extends ContentProvider {
                     "." + MovieEntry.COLUMN_FAVORITE + " = ?";
 
 
-    static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
         // I know what you're thinking.  Why create a UriMatcher when you can use regular
         // expressions instead?  Because you're not crazy, that's why.
 
@@ -235,7 +241,7 @@ public class MovieProvider extends ContentProvider {
                 break;
             }
             case MOVIE_WITH_VIDEO: {
-                retCursor = getMovieWithVideo(uri, VideoEntry.VIDEO_COLUMNS, sortOrder);
+                retCursor = getMovieWithVideo(uri, VIDEO_COLUMNS, sortOrder);
                 break;
             }
             case MOVIE_WITH_REVIEW: {
@@ -261,6 +267,8 @@ public class MovieProvider extends ContentProvider {
                 sortOrder
         );
     }
+
+
 
     private Cursor getMovieWithReview(Uri uri, String[] projection, String sortOrder) {
         long id = Long.parseLong(uri.getPathSegments().get(1));
@@ -397,17 +405,34 @@ public class MovieProvider extends ContentProvider {
                         replace on conflict w/out removing the favorites flag, and updating the
                         favorites data to current
                          */
-                        String INSERT_MOVIE = "INSERT INTO movie(popularity,vote_average,title," +
-                                "original_title,tmdb_id,release_date,poster_path,vote_count,"+
-                                "overview,favorite) VALUES (?,?,?,?,?,?,?,?,?," +
+//                        String INSERT_MOVIE = "INSERT INTO movie(popularity, background_path,vote_average,title," +
+//                                "original_title,tmdb_id,release_date,poster_path,vote_count,"+
+//                                "overview,favorite) VALUES (?,?,?,?,?,?,?,?,?,?," +
+//                                "coalesce((select favorite from movie where tmdb_id = ?),0))";
+//                        String[] cols = { "popularity","background_path","vote_average","title",
+//                                "original_title","tmdb_id","release_date","poster_path",
+//                                "vote_count","overview"};
+
+                        List<String> cols = new ArrayList<String>(
+                                Arrays.asList(MovieEntry.MOVIE_COLUMNS));
+                        cols.remove(MovieEntry.COLUMN_POS_ID);
+                        String cols_text =  TextUtils.join(",", cols);
+                        String INSERT_MOVIE = "INSERT INTO movie( " + cols_text + ") VALUES " +
+                                "(?,?,?,?,?,?,?,?,?,?,"+
                                 "coalesce((select favorite from movie where tmdb_id = ?),0))";
+
+                        int size = cols.size();
+                        // We exclude Favorite as default value as it is interpreted
+                        // differently in the insert statement above
+                        // We do it AFTER taking the size as indeed we are filling
+                        // the space manually below
+                        cols.remove(MovieEntry.COLUMN_FAVORITE);
                         Object[] bindArgs = null;
-                        int size = (value != null && value.size() > 0)
-                                ? value.size() : 0;
+//                        int size = (value != null && value.size() > 0) ? value.size() : 0;
                         if (size > 0) {
-                            bindArgs = new Object[size+1];
+                            bindArgs = new Object[size];
                             int i = 0;
-                            for (String colName : value.keySet()) {
+                            for (String colName : cols) {
                                 bindArgs[i++] = value.get(colName);
                             }
                             bindArgs[i] = value.get(MovieEntry.COLUMN_TMDB_ID);

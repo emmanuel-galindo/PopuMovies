@@ -18,11 +18,11 @@ import java.net.URISyntaxException;
  * from a {@link Cursor} to a {@link android.widget.ListView}.
  */
 public class ReviewAdapter extends CursorRecyclerAdapter<ReviewAdapter.ViewHolder> {
-    private static final String YOUTUBE_DEV_KEY = "AIzaSyAYPDK84iJv_dDiDr13V4MJ7eMKWYYVaGI";
+//    private static final String YOUTUBE_DEV_KEY = "AIzaSyAYPDK84iJv_dDiDr13V4MJ7eMKWYYVaGI";
     private final String LOG_TAG = ReviewAdapter.class.getSimpleName();
 
 
-    private Context mContext;
+    private final Context mContext;
 
     /**
      * Cache of the children views for a forecast list item.
@@ -48,11 +48,10 @@ public class ReviewAdapter extends CursorRecyclerAdapter<ReviewAdapter.ViewHolde
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_review, parent, false);
-        ViewHolder vh = new ViewHolder(itemView);
-        return vh;
+        return new ViewHolder(itemView);
     }
 
-    public ReviewAdapter(Context context, Cursor c, int flags) {
+    public ReviewAdapter(Context context, Cursor c) {
         super(c);
         mContext = context;
     }

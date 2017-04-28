@@ -27,12 +27,12 @@ import com.popumovies.data.MovieContract.ReviewEntry;
 /**
  * Manages a local database for movie data.
  */
-public class MovieDbHelper extends SQLiteOpenHelper {
+class MovieDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 20;
 
-    public static final String DATABASE_NAME = "popumovies.db";
+    private static final String DATABASE_NAME = "popumovies.db";
 
     public MovieDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -52,6 +52,7 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL, " +
                 MovieEntry.COLUMN_RELEASE_DATE + " NUMERIC NOT NULL," +
                 MovieEntry.COLUMN_POSTER_PATH + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_BACKGROUND_PATH + " TEXT, " +
                 MovieEntry.COLUMN_VOTE_AVERAGE + " NUMERIC NOT NULL, " +
                 MovieEntry.COLUMN_VOTE_COUNT + " INTEGER NOT NULL, " +
                 MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " +
@@ -73,9 +74,11 @@ public class MovieDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_REVIEW_TABLE = "CREATE TABLE " + ReviewEntry.TABLE_NAME + " (" +
                 ReviewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 ReviewEntry.COLUMN_TMDB_ID + " INTEGER NOT NULL, " +
+                ReviewEntry.COLUMN_REVIEW_ID + " INTEGER NOT NULL, " +
                 ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
                 ReviewEntry.COLUMN_CONTENT + " TEXT NOT NULL, " +
-                ReviewEntry.COLUMN_URL + " TEXT NOT NULL)";
+                ReviewEntry.COLUMN_URL + " TEXT NOT NULL, " +
+                " UNIQUE (" + ReviewEntry.COLUMN_REVIEW_ID + ") ON CONFLICT REPLACE);";
 
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);

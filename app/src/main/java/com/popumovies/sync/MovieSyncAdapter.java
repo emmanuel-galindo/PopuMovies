@@ -39,16 +39,16 @@ import java.util.List;
 import java.util.Vector;
 
 public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
-    public final String LOG_TAG = MovieSyncAdapter.class.getSimpleName();
+    private final String LOG_TAG = MovieSyncAdapter.class.getSimpleName();
     // Interval at which to sync with the movie, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 180;
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+    private static final int SYNC_INTERVAL = 60 * 180;
+    private static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
     private static final long DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
     private static final int MOVIE_NOTIFICATION_ID = 3004;
 
     // Retrofit manager
-    ApiManager mgr;
+    private ApiManager mgr;
 
 
     public MovieSyncAdapter(Context context, boolean autoInitialize) {
@@ -151,6 +151,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             movieValues.put(MovieEntry.COLUMN_ORIGINAL_TITLE, movie.getOriginalTitle());
             movieValues.put(MovieEntry.COLUMN_OVERVIEW, movie.getOverview());
             movieValues.put(MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
+            movieValues.put(MovieEntry.COLUMN_BACKGROUND_PATH, movie.getBackdropPath());
             movieValues.put(MovieEntry.COLUMN_POSTER_PATH, movie.getPosterPath());
             movieValues.put(MovieEntry.COLUMN_VOTE_AVERAGE, movie.getVoteAverage());
             movieValues.put(MovieEntry.COLUMN_VOTE_COUNT, movie.getVoteCount());
@@ -179,6 +180,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
                 ContentValues reviewValues = new ContentValues();
                 reviewValues.put(ReviewEntry.COLUMN_TMDB_ID, movie.getId());
+                reviewValues.put(ReviewEntry.COLUMN_REVIEW_ID, review.getId());
                 reviewValues.put(ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
                 reviewValues.put(ReviewEntry.COLUMN_CONTENT, review.getContent());
                 reviewValues.put(ReviewEntry.COLUMN_URL, review.getUrl());
@@ -242,6 +244,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         final String MOVIES_BASE_URL = "http://api.themoviedb.org/3/movie/"+sortBy+"?";
         final String API_KEY = "api_key";
 
+        //TODO: put this on a resource
         String api_key = "ba7a9d0e2fb18d7d47b1b4bfaabc4d04";
 
         Uri builtUri = Uri.parse(MOVIES_BASE_URL).buildUpon()
@@ -277,8 +280,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             // Stream was empty.  No point in parsing.
             return "";
         }
-        String moviesJsonStr = buffer.toString();
-        return moviesJsonStr;
+        return buffer.toString();
     }
 
     public Void getMoviesDataFromJson(String forecastJsonStr)
@@ -452,7 +454,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * Helper method to schedule the sync adapter periodic execution
      */
-    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
+    private static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
         Account account = getSyncAccount(context);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -473,6 +475,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param context The context used to access the account service
      */
     public static void syncImmediately(Context context) {
+        Log.d("MovieSyncAdapter", "syncImmediately");
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -488,7 +491,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param context The context used to access the account service
      * @return a fake account.
      */
-    public static Account getSyncAccount(Context context) {
+    private static Account getSyncAccount(Context context) {
         // Get an instance of the Android account manager
         AccountManager accountManager =
                 (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);

@@ -1,23 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/list_item_poster"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:src="@drawable/test_img"
         />        <!--style="@style/posterHeight"-->
 
-    <ImageView
-        android:id="@+id/list_item_poster_star"
-        android:layout_width="wrap_content"
+    <!--<ImageView-->
+        <!--android:id="@+id/list_item_poster_star"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:src="@android:drawable/btn_star_big_on"-->
+        <!--android:layout_gravity="top|right"-->
+        <!--android:visibility="gone"-->
+        <!--/>-->
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/list_item_poster_favorite"
+        android:layout_width="71dp"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/btn_star_big_on"
-        android:layout_gravity="top|right"
+        android:layout_gravity="bottom|left"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_favorite_white_24dp"
+        app:backgroundTint="@color/colorPrimary"
         android:visibility="gone"
-        />
-</FrameLayout>
+        app:elevation="6dp"
+        app:layout_anchor="@+id/list_item_poster"
+        app:layout_anchorGravity="top|right"
+        app:pressedTranslationZ="12dp" />
+</android.support.design.widget.CoordinatorLayout>

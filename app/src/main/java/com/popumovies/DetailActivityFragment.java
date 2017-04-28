@@ -8,11 +8,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.DimenRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,9 +21,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ExpandableListView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -32,7 +30,6 @@ import com.popumovies.adapter.VideoAdapter;
 import com.popumovies.data.MovieContract;
 import com.popumovies.data.MovieContract.MovieEntry;
 import com.popumovies.utils.HelperOkHttpClient;
-import com.popumovies.utils.VarColumnGridLayoutManager;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -49,9 +46,9 @@ public class DetailActivityFragment extends Fragment
     private static final int FRAGMENT_DETAIL_MOVIE_LOADER = 1;
     private static final int FRAGMENT_DETAIL_VIDEO_LOADER = 2;
     private static final int FRAGMENT_DETAIL_REVIEW_LOADER = 3;
-    public static final String DETAIL_URI = "URI";
+//    public static final String DETAIL_URI = "URI";
     public static final String DETAIL_MOVIEID = "_id";
-    public static final String DETAIL_TWOPANE = "TWO_PANE";
+//    public static final String DETAIL_TWOPANE = "TWO_PANE";
 
 
     //    static final String[] FORECAST_COLUMNS = {
@@ -68,37 +65,37 @@ public class DetailActivityFragment extends Fragment
 //    };
     private View mRootView;
     private Uri mUri;
-    private TextView mTitleView;
-    private ImageView mPosterView;
-    private TextView mYearView;
-    private TextView mDurationView;
+//    private TextView mTitleView;
+//    private ImageView mPosterView;
+//    private TextView mYearView;
+//    private TextView mDurationView;
 //    private TextView mPopularityView;
-    private TextView mDescriptionView;
-    private TextView mVoteAverageView;
-    private RatingBar mVoteAverageRatingBar;
-    private ImageButton mStarButton;
-    private String mTitle;
-    private ExpandableListView mTrailersListView;
-    private RecyclerView mRecyclerViewVideo;
+//    private TextView mDescriptionView;
+//    private TextView mVoteAverageView;
+//    private RatingBar mVoteAverageRatingBar;
+//    private ImageButton mStarButton;
+//    private String mTitle;
+//    private ExpandableListView mTrailersListView;
     private VideoAdapter mVideoAdapter;
-    private RecyclerView mRecyclerViewReview;
     private ReviewAdapter mReviewAdapter;
-    private GridLayoutManager mLayoutManager;
-    private LinearLayoutManager mReviewLayoutManager;
+
+    // In DFragment, mPosition is used to reposition on movie list after favorite is updated
+//    private int mPosition;
     private long mMovieId;
-    private String mOriginalTitle;
+//    private String mOriginalTitle;
     private TextView titleView;
-    private ImageButton starButton;
+//    private ImageButton starButton;
     private TextView descriptionView;
     private RatingBar voteAverageRatingBar;
     private TextView voteAverageView;
     private TextView yearView;
     private ImageView posterView;
-    private boolean mTwoPane = false;
-
+//    private boolean mTwoPane = false;
+    private FloatingActionButton favoriteButton;
+    private ImageView backgroundView;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
 
 
@@ -107,63 +104,64 @@ public class DetailActivityFragment extends Fragment
 //            mUri = arguments.getParcelable("Uri");
 //        }
 //        mTwoPane = (getActivity().findViewById(R.id.movie_list_container) != null);
-
+        Log.d(LOG_TAG, "OnCreateView");
         mRootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
         titleView = (TextView) mRootView.findViewById(R.id.textview_movie_title);
         posterView = (ImageView) mRootView.findViewById(R.id.imageview_movie_poster);
+        backgroundView = (ImageView) mRootView.findViewById(R.id.imageview_movie_background);
+
         yearView = (TextView) mRootView.findViewById(R.id.textview_movie_year);
 //        mDurationView = (TextView) mRootView.findViewById(R.id.textview_movie_duration);
 //        mPopularityView = (TextView) mRootView.findViewById(R.id.textview_movie_popularity);
         voteAverageView = (TextView) mRootView.findViewById(R.id.textview_movie_vote_average);
         voteAverageRatingBar = (RatingBar) mRootView.findViewById(R.id.ratingbar_movie_vote_average);
         descriptionView = (TextView) mRootView.findViewById(R.id.textview_movie_description);
-        starButton = (ImageButton) mRootView.findViewById(R.id.button_star_favorite);
+        favoriteButton = (FloatingActionButton) mRootView.findViewById(R.id.button_fav);
 
-        mRecyclerViewVideo = (RecyclerView) mRootView.findViewById(R.id.recyclerview_video);
+        // Set Collapsing Toolbar layout to the screen
+        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
+
+        RecyclerView mRecyclerViewVideo = (RecyclerView) mRootView.findViewById(R.id.recyclerview_video);
 //        mRecyclerViewVideo.setMinimumHeight(300);
 //        mRecyclerViewVideo.setHasFixedSize(true);
-//        mLayoutManager = new GridLayoutManager(getActivity(), 3, LinearLayoutManager.VERTICAL, false);
-        mLayoutManager = new VarColumnGridLayoutManager(getActivity(), 200);
-
-        mRecyclerViewVideo.setLayoutManager(mLayoutManager);
+//        mVideoLayoutManager = new GridLayoutManager(getActivity(), 3, LinearLayoutManager.VERTICAL, false);
+//        mVideoLayoutManager = new VarColumnGridLayoutManager(getActivity(), 200);
+        LinearLayoutManager mVideoLayoutManager = new LinearLayoutManager(getActivity(), 0, false);
+        mRecyclerViewVideo.setLayoutManager(mVideoLayoutManager);
+        mRecyclerViewVideo.getLayoutManager().setAutoMeasureEnabled(true);
+        mRecyclerViewVideo.setHasFixedSize(false);
 //        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.item_offset);
 //        mRecyclerViewVideo.addItemDecoration(itemDecoration);
-        mVideoAdapter = new VideoAdapter(getActivity(), null, 0);
+        mVideoAdapter = new VideoAdapter(getActivity(), null);
         mRecyclerViewVideo.setAdapter(mVideoAdapter);
 
 //        getLoaderManager().initLoader(FRAGMENT_DETAIL_VIDEO_LOADER, null, this);
 
-        mRecyclerViewReview = (RecyclerView) mRootView.findViewById(R.id.recyclerview_review);
+        RecyclerView mRecyclerViewReview = (RecyclerView) mRootView.findViewById(R.id.recyclerview_review);
         mRecyclerViewReview.setHasFixedSize(true);
-        mReviewLayoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager mReviewLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerViewReview.setLayoutManager(mReviewLayoutManager);
-        mReviewAdapter = new ReviewAdapter(getActivity(), null, 0);
+        mReviewAdapter = new ReviewAdapter(getActivity(), null);
         mRecyclerViewReview.setAdapter(mReviewAdapter);
 
-//        getLoaderManager().initLoader(FRAGMENT_DETAIL_REVIEW_LOADER, null, this);
+        DetailActivityFragment mCallbacks = this;
 
+        TextView tv = (TextView) mRootView.findViewById(R.id.textview_movie_video_title);
+
+        // Detect if details are present in the arguments (ViewPager) or if they need to be
+        // read from the database again (landscape, two pane)
         Bundle arguments = getArguments();
-        // if arguments is not null, it came from the pageradapter from detailactivity
         if (arguments != null) {
-            if (arguments.containsKey(DETAIL_TWOPANE))
-                //TODO: why not to do it from the getResources files
-                mTwoPane = arguments.getBoolean(DETAIL_TWOPANE);
+            mMovieId = Long.parseLong(arguments.getString(DETAIL_MOVIEID));
+            mUri = MovieEntry.buildSingleMovieUri(mMovieId);
+
             if (arguments.size() > 1) {
-                //mMovieId and mUri are loaded here just for single panel & pageradapter.
-                // In twopane these are created after onItemSelected (for initial and actual click)
-                mMovieId = Long.parseLong(arguments.getString(DETAIL_MOVIEID));
-                mUri = MovieEntry.buildSingleMovieUri(mMovieId);
-                // if two pane, the movie data needs to be retrieved from db, and then call fillForm
-                if (mTwoPane) {
-                    getLoaderManager().initLoader(FRAGMENT_DETAIL_MOVIE_LOADER, null, this);
-                } else {
-                    fillForm(arguments);
-                }
+                fillForm(arguments);
+            } else {
+                getLoaderManager().initLoader(FRAGMENT_DETAIL_MOVIE_LOADER, null, this);
             }
         }
-
-
 
 //        titleView.setText(mOriginalTitle);
 //
@@ -225,10 +223,10 @@ public class DetailActivityFragment extends Fragment
 //        mRecyclerViewVideo = (RecyclerView) mRootView.findViewById(R.id.recyclerview_video);
 ////        mRecyclerViewVideo.setMinimumHeight(300);
 ////        mRecyclerViewVideo.setHasFixedSize(true);
-////        mLayoutManager = new GridLayoutManager(getActivity(), 3, LinearLayoutManager.VERTICAL, false);
-//        mLayoutManager = new VarColumnGridLayoutManager(getActivity(), 200);
+////        mVideoLayoutManager = new GridLayoutManager(getActivity(), 3, LinearLayoutManager.VERTICAL, false);
+//        mVideoLayoutManager = new VarColumnGridLayoutManager(getActivity(), 200);
 //
-//        mRecyclerViewVideo.setLayoutManager(mLayoutManager);
+//        mRecyclerViewVideo.setLayoutManager(mVideoLayoutManager);
 ////        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.item_offset);
 ////        mRecyclerViewVideo.addItemDecoration(itemDecoration);
 //        mVideoAdapter = new VideoAdapter(getActivity(), null, 0);
@@ -328,21 +326,42 @@ public class DetailActivityFragment extends Fragment
         return mRootView;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //TODO: change these hardcoded keys
+        outState.putLong("MOVIE_ID", mMovieId);
+        //outState.putInt("POSITION", mPosition);
+
+    }
+
+
+    @Override
+    public void onPause() {
+        Log.d(LOG_TAG,"onPause");
+        //getActivity().setMovieId(mMovieId);
+        super.onPause();
+    }
+
     // This is called both from single and two panel to populate the data with a common struct
     // bundle
     private void fillForm(Bundle arguments) {
 
         String title = arguments.getString(MovieEntry.COLUMN_TITLE);
         String originalTitle = arguments.getString(MovieEntry.COLUMN_ORIGINAL_TITLE);
+        Log.d(LOG_TAG, "fillForm/originalTitle => " + originalTitle);
         Date release_date = new Date(Long.parseLong(
                 arguments.getString(MovieEntry.COLUMN_RELEASE_DATE)));
         String posterPath = arguments.getString(MovieEntry.COLUMN_POSTER_PATH);
+        String backgroundPath = arguments.getString(MovieEntry.COLUMN_BACKGROUND_PATH);
         String voteAverage = arguments.getString(MovieEntry.COLUMN_VOTE_AVERAGE);
         String overView = arguments.getString(MovieEntry.COLUMN_OVERVIEW);
         boolean favorite = (arguments.getString(MovieEntry.COLUMN_FAVORITE).equals("1"));
 
         // Showing the original title as Movie title
         titleView.setText(originalTitle);
+        //collapsingToolbar.setTitle(originalTitle);
+
 
         // extract the year
         SimpleDateFormat df = new SimpleDateFormat("yyyy");
@@ -354,50 +373,80 @@ public class DetailActivityFragment extends Fragment
         //  "w92", "w154", "w185", "w342", "w500", "w780", or "original". For most phones we recommend using “w185”.
         // 3 - And finally the poster path returned by the query, in this case “/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg”
 //        String poster = "http://image.tmdb.org/t/p/w500"+arguments.getString(MovieEntry.COLUMN_POSTER_PATH);
-        String poster = "http://image.tmdb.org/t/p/w185"+ posterPath;
+        // TODO: remove hardcode
+        String poster = "http://image.tmdb.org/t/p/w300/"+ posterPath;
+        String background = "http://image.tmdb.org/t/p/w300/"+ backgroundPath;
         Log.d(LOG_TAG, "Loading poster url => " + poster);
 //        OkHttpClient okHttpClient = HelperOkHttpClient.getOkHttpClientBuilder().build();
 //        Picasso picasso = new Picasso.Builder(mRootView.getContext())
 //                .downloader(new OkHttp3Downloader(okHttpClient))
 //                .build();
-        Picasso picasso = HelperOkHttpClient.getPicassoInstance(mRootView.getContext());
+        Picasso picasso = new HelperOkHttpClient().getPicassoInstance(mRootView.getContext());
         picasso.load(poster)
                 .into(posterView);
+        picasso.load(background)
+                .into(backgroundView);
 //        Picasso picasso = Picasso.with(mRootView.getContext());
 //        picasso.setIndicatorsEnabled(true);
 //        picasso.load(poster).into(posterView);
 
         // Accessibility feature
-        posterView.setContentDescription(arguments.getString(MovieEntry.COLUMN_POSTER_PATH));
+        posterView.setContentDescription(arguments.getString(MovieEntry.COLUMN_ORIGINAL_TITLE));
+        backgroundView.setContentDescription(arguments.getString(MovieEntry.COLUMN_ORIGINAL_TITLE));
 
-        voteAverageView.setText(voteAverage + getString(R.string.vote_avg_string));
+        voteAverageView.setText(String.format(getString(R.string.vote_avg_string),voteAverage));
 
         float voteAverageNumber = Float.parseFloat(voteAverage) / 2;
         voteAverageRatingBar.setRating(voteAverageNumber);
 
         descriptionView.setText(overView);
 
-        starButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Do something in response to button click
-                //mUri = content://com.popumovies/movie/4
-                onClickFavorite(v, mUri);
+//        starButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                // Do something in response to button click
+//                //mUri = content://com.popumovies/movie/4
+//                onClickFavorite(v, mUri);
+//            }
+//        });
+//        // Select star if favorite
+//
+//        starButton.setSelected(favorite);
+
+//        Button favButton = (Button) mRootView.findViewById(R.id.button_favorite);
+//        favButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                // Do something in response to button click
+//                //mUri = content://com.popumovies/movie/4
+//                ImageButton starButton = (ImageButton)
+//                        mRootView.findViewById(R.id.button_star_favorite);
+//                onClickFavorite(starButton,mUri);
+//            }
+//        });
+
+        favoriteButton.setSelected(favorite);
+        if (favorite)
+            favoriteButton.setImageResource(R.drawable.ic_favorite_black_36dp);
+        else
+            favoriteButton.setImageResource(R.drawable.ic_favorite_border_black_36dp);
+
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View v) {
+            // Do something in response to button click
+            //mUri = content://com.popumovies/movie/4
+            onClickFavorite(v, mUri);
+            if (v.isSelected()) {
+                favoriteButton.setImageResource(R.drawable.ic_favorite_black_36dp);
+            } else {
+                favoriteButton.setImageResource(R.drawable.ic_favorite_border_black_36dp);
+            }
             }
         });
         // Select star if favorite
 
-        starButton.setSelected(favorite);
 
-        Button favButton = (Button) mRootView.findViewById(R.id.button_favorite);
-        favButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Do something in response to button click
-                //mUri = content://com.popumovies/movie/4
-                ImageButton starButton = (ImageButton)
-                        mRootView.findViewById(R.id.button_star_favorite);
-                onClickFavorite(starButton,mUri);
-            }
-        });
+        // At first, we show only 3 trailers
+//        mLimitVideo = 3;
+
 
         getLoaderManager().initLoader(FRAGMENT_DETAIL_VIDEO_LOADER, null, this);
         getLoaderManager().initLoader(FRAGMENT_DETAIL_REVIEW_LOADER, null, this);
@@ -406,10 +455,10 @@ public class DetailActivityFragment extends Fragment
 //        mRecyclerViewVideo = (RecyclerView) mRootView.findViewById(R.id.recyclerview_video);
 ////        mRecyclerViewVideo.setMinimumHeight(300);
 ////        mRecyclerViewVideo.setHasFixedSize(true);
-////        mLayoutManager = new GridLayoutManager(getActivity(), 3, LinearLayoutManager.VERTICAL, false);
-//        mLayoutManager = new VarColumnGridLayoutManager(getActivity(), 200);
+////        mVideoLayoutManager = new GridLayoutManager(getActivity(), 3, LinearLayoutManager.VERTICAL, false);
+//        mVideoLayoutManager = new VarColumnGridLayoutManager(getActivity(), 200);
 //
-//        mRecyclerViewVideo.setLayoutManager(mLayoutManager);
+//        mRecyclerViewVideo.setLayoutManager(mVideoLayoutManager);
 ////        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.item_offset);
 ////        mRecyclerViewVideo.addItemDecoration(itemDecoration);
 //        mVideoAdapter = new VideoAdapter(getActivity(), null, 0);
@@ -435,16 +484,23 @@ public class DetailActivityFragment extends Fragment
 //        Log.d(LOG_TAG, "Destroying fragment with name " + mTitle);
 //    }
 
-    public void onClickFavorite(View v, Uri mUri) {
+    private void onClickFavorite(View v, Uri mUri) {
         v.setSelected(!v.isSelected());
         ContentValues movieValues = new ContentValues();
         movieValues.put(MovieContract.MovieEntry.COLUMN_FAVORITE, v.isSelected());
+        Log.d(LOG_TAG,"calling update with args: uri=>" + mUri +",mv=>"+movieValues.toString());
         getActivity().getContentResolver().update(
                 mUri,
                 movieValues,
                 null,
                 null);
-
+        // List should be refreshed
+        // I would expect the observer from the ContentProvider to detect the chage, but
+        // it seems to be missing something.
+        // Some comments point to adapter.notifyDataSetChanged();
+        MainActivityFragment mf = (MainActivityFragment) getActivity()
+                .getSupportFragmentManager().findFragmentByTag(MainActivity.MAINFRAGMENT_TAG);
+        mf.restartLoader();
     }
 
     @Override
@@ -477,6 +533,8 @@ public class DetailActivityFragment extends Fragment
         if (id == FRAGMENT_DETAIL_VIDEO_LOADER) {
             Uri videoUri = MovieEntry.buildMovieWithVideos(mMovieId);
             //mUri = mUri.buildUpon().appendPath("extras").build();
+            // We retrieve 3, and then if the user wants more
+
             if (videoUri != null) {
                 return new CursorLoader(
                         getActivity(),
@@ -522,8 +580,10 @@ public class DetailActivityFragment extends Fragment
         Log.v(LOG_TAG, "In onLoadFinished");
         if (!data.moveToFirst()) { return; }
 
-        if (loader.getId() == FRAGMENT_DETAIL_VIDEO_LOADER)
+        // here we evaluate if more than 3 to show expand, and more of less
+        if (loader.getId() == FRAGMENT_DETAIL_VIDEO_LOADER) {
             mVideoAdapter.swapCursor(data);
+        }
         else if (loader.getId() == FRAGMENT_DETAIL_REVIEW_LOADER)
             mReviewAdapter.swapCursor(data);
         else if (loader.getId() == FRAGMENT_DETAIL_MOVIE_LOADER) {
@@ -582,16 +642,25 @@ public class DetailActivityFragment extends Fragment
         // longer using it.
     }
 
-    // When in twoPane, it creates a new loader to grab data. It doesn't use an adapter
-    public void onTwoPaneMovieSelected(long id) {
-        mMovieId = id;
-        getLoaderManager().initLoader(FRAGMENT_DETAIL_MOVIE_LOADER, null, this);
-
+    public void setMovieId(long movieId) {
+        mMovieId = movieId;
     }
+
+    public long getMovieId() {
+        return mMovieId;
+    }
+
+
+    // When in twoPane, it creates a new loader to grab data. It doesn't use an adapter
+//    public void onTwoPaneMovieSelected(long id) {
+//        mMovieId = id;
+//        getLoaderManager().initLoader(FRAGMENT_DETAIL_MOVIE_LOADER, null, this);
+//
+//    }
 
     public class ItemOffsetDecoration extends RecyclerView.ItemDecoration {
 
-        private int mItemOffset;
+        private final int mItemOffset;
 
         public ItemOffsetDecoration(int itemOffset) {
             mItemOffset = itemOffset;

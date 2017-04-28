@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,12 +18,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.popumovies.adapter.MovieAdapter;
 import com.popumovies.data.MovieContract.MovieEntry;
 import com.popumovies.sync.MovieSyncAdapter;
 import com.popumovies.utils.PrefUtil;
-import com.popumovies.utils.VarColumnGridLayoutManager;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -32,18 +33,30 @@ public class MainActivityFragment extends Fragment
 
     private MovieAdapter mMovieAdapter;
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    // --Commented out by Inspection (4/28/17 11:41 AM):private RecyclerView.Adapter mAdapter;
     private Menu mMenu;
-    private Parcelable mLayoutManagerSavedState;
+
+    // when the list is layed out, if mposition is > 0 it will be used to scroll to position
+//    private int mPosition;
+    private int mPosition = ListView.INVALID_POSITION;
 //    private boolean mTwoPane;
 
-//    private int mPosition = ListView.INVALID_POSITION;
 
-    public static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
-    private static final String SELECTED_KEY = "selected_position";
+    private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+    // --Commented out by Inspection (4/28/17 11:41 AM):private static final String SELECTED_KEY = "selected_position";
     private static final String BUNDLE_RECYCLER_LAYOUT = "classname.recycler.layout";
     private static final int MOVIE_LOADER = 0;
+    // --Commented out by Inspection (4/28/17 11:41 AM):private int mScrollToPos;
+    // --Commented out by Inspection (4/28/17 11:41 AM):private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    public void setPositionInList(int pos) {
+        if (mRecyclerView.getLayoutManager() != null)
+            mRecyclerView.getLayoutManager().scrollToPosition(pos);
+    }
+
+    public void setPosition(int position) {
+        mPosition = position;
+    }
 
 
     /**
@@ -56,7 +69,8 @@ public class MainActivityFragment extends Fragment
          * DetailFragmentCallback for when an item has been selected.
          */
         void onItemSelected(int pos, long movieId);
-        void initMoviePane(long movieId);
+//        void initMoviePane(long movieId);
+//        int getPosition();
 
     }
 
@@ -74,74 +88,16 @@ public class MainActivityFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-//        mTwoPane = (getActivity().findViewById(R.id.movie_detail_container) != null);
-
-        // The MovieAdapter  will take data from a source and
-        // use it to populate the ListView it's attached to.
-        mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
+        Log.d(LOG_TAG,"onCreateView");
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
-
-//        // Get a reference to the ListView, and attach this adapter to it.
-//        getActivity().setContentView(R.layout.fragment_main);
-//        mRecyclerView = (RecyclerView) getActivity().findViewById(R.id.recycler_view);
-
-
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-
-
-        // use a grid layout manager, 2nd arguments is qt
-//        mLayoutManager = new GridLayoutManager(getActivity(), 2, LinearLayoutManager.VERTICAL, false);
-        boolean tabletSize = getResources().getBoolean(R.bool.isTablet);
-        int gridSize = 500;
-//        if (tabletSize && getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE ) {
-        if (tabletSize) {
-            gridSize = 300;
-        }
-        mLayoutManager = new VarColumnGridLayoutManager(getActivity(), gridSize);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        int spacingInPixels = getResources().getDimensionPixelSize(R.dimen.spacing);
-//        mRecyclerView.addItemDecoration(new SpacesItemDecoration(spacingInPixels));
-
-
+        mMovieAdapter = new MovieAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mMovieAdapter);
-        // We'll call our MainActivity
-//        mRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-//                // CursorAdapter returns a cursor at the correct position for getItem(), or null
-//                // if it cannot seek to that position.
-//                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-//                if (cursor != null) {
-////                    String sortBy = Utility.getPreferredLocation(getActivity());
-//                    ((Callback) getActivity())
-//                            .onItemSelected(MovieEntry.buildSingleMovieUri(cursor.getLong(COLUMN_TMDB_ID)));
-//                }
-//                mPosition = position;
-//            }
-//        });
-
-        // If there's instance state, mine it for useful information.
-        // The end-goal here is that the user never knows that turning their device sideways
-        // does crazy lifecycle related things.  It should feel like some stuff stretched out,
-        // or magically appeared to take advantage of room, but data or place in the app was never
-        // actually *lost*.
-//        if (savedInstanceState != null && savedInstanceState.containsKey(SELECTED_KEY)) {
-//            Bundle arguments = getArguments();
-//            // if arguments is not null, it came from the pageradapter from detailactivity
-//            if (arguments != null && arguments.containsKey("pos")) {
-//                mPosition = arguments.getInt("pos");
-//            } else {
-//                //          // The listview probably hasn't even been populated yet.  Actually perform the
-//                //          // swapout in onLoadFinished.
-//                mPosition = savedInstanceState.getInt(SELECTED_KEY);
-//            }
-//        }
+        RecyclerView.LayoutManager mLayoutManager = mRecyclerView.getLayoutManager();
 
         return rootView;
     }
@@ -252,30 +208,42 @@ public class MainActivityFragment extends Fragment
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // Swap the new cursor in.  (The framework will take care of closing the
         // old cursor once we return.)
-        mMovieAdapter.swapCursor(data);
+        //todo: only do this when it is not favorite listing
+        int idFilter = PrefUtil.getInt(getActivity(),getString(R.string.pref_filter_label));
+        // if there's no data (as in initial load), refresh
+        if (data.getCount() > 0 || idFilter == R.id.action_favorites) {
+            mMovieAdapter.swapCursor(data);
+            if (mPosition != ListView.INVALID_POSITION) {
+                mRecyclerView.scrollToPosition(mPosition);
+            }
+        } else {
+            updateMovie();
+        }
+
+//        getActivity().findViewById(R.id.content).setVisibility(View.VISIBLE);
 
         // if in twopane, we will init the fragment with the first item from list
 //        if (mTwoPane) {
-        //TODO: we need to identify if we are on two panel
-        boolean twoPane = getResources().getBoolean(R.bool.has_two_panes);
-        if (twoPane && data.moveToFirst()) {
-            long id = data.getLong(data.getColumnIndexOrThrow("_id"));
-            ((MainActivityFragment.Callback) getActivity()).initMoviePane(id);
-            //TODO: in twopane, if no records, show a gray screen in movie detail fragment
-        }
+        //TODO: fucking normalize the use of twoPane. This option is the GO for me (now)
+//        boolean twoPane = getResources().getBoolean(R.bool.has_two_panes);
+//        if (twoPane && data.moveToFirst()) {
+//            long id = data.getLong(data.getColumnIndexOrThrow("_id"));
+//            ((MainActivityFragment.Callback) getActivity()).initMoviePane(id);
+//            //TODO: in twopane, if no records, show a gray screen in movie detail fragment
+//        }
 //        }
 
         // As data is already loaded, restore using the layoutmanager inner saved state
-        if (mLayoutManagerSavedState != null)
-            mLayoutManager.onRestoreInstanceState(mLayoutManagerSavedState);
-//        if (mPosition != GridView.INVALID_POSITION) {
-//            mRecyclerView.smoothScrollToPosition(mPosition);
-////            // meant for two pane , if this is the first time we load the list,
-////            // check the first item in list
-////            if (mPosition == 0) {
-//////                mRecyclerView.setItemChecked(mPosition, true);
-////            }
+//        if (mLayoutManagerSavedState != null)
+//            mLayoutManager.onRestoreInstanceState(mLayoutManagerSavedState);
+//        if (mScrollToPos > 0) {
+//            mRecyclerView.scrollToPosition(mScrollToPos);
 //        }
+
+        // SmoothScrollToPosition does not work as expected. If the selected position in land
+        // with 4 columns is 8, when rotate to portrait with 2 cols it will show 6/8 of the
+        // 6&7 positions. The desired is to show 8-12 positions.
+
     }
 
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -284,6 +252,11 @@ public class MainActivityFragment extends Fragment
         // longer using it.
         mMovieAdapter.swapCursor(null);
     }
+
+    public void restartLoader() {
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+    }
+
 
 //    @Override
 //    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
@@ -308,31 +281,40 @@ public class MainActivityFragment extends Fragment
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
+
         if (savedInstanceState instanceof Bundle) {
             // When restoring, as data is still not loaded, we just save the reference for
             // Loader.onLoadFinished
-            mLayoutManagerSavedState = ((Bundle) savedInstanceState)
+            Parcelable mLayoutManagerSavedState = ((Bundle) savedInstanceState)
                     .getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            if (savedInstanceState.containsKey("scrollpos")) {
+                int scrollToPos = ((Bundle) savedInstanceState)
+                        .getInt("scrollpos");
+                setPosition(scrollToPos);
+            }
         }
     }
 
 
-    //    @Override
+//    @Override
 //    public void onResume() {
 //        super.onResume();
-//    }
 //
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
+//        if (mLayoutManagerSavedState != null) {
+//            mLayoutManager.onRestoreInstanceState(mLayoutManagerSavedState);
+//        }
 //    }
-//
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // - Make use of the LayoutManager capabilities to help saving the scroll position
         // When rotating, it will be only useful when returning to the orientation in where it was set.
-        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, mRecyclerView.getLayoutManager().onSaveInstanceState());
+        if (mRecyclerView != null) {
+            outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, mRecyclerView.getLayoutManager().onSaveInstanceState());
+            int scrollpos = ((GridLayoutManager) mRecyclerView.getLayoutManager())
+                    .findFirstCompletelyVisibleItemPosition();
+            outState.putInt("scrollpos", scrollpos);
+        }
         super.onSaveInstanceState(outState);
         // When tablets rotate, the currently selected list item needs to be saved.
         // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
@@ -341,11 +323,17 @@ public class MainActivityFragment extends Fragment
 //            outState.putInt(SELECTED_KEY, mPosition);
 //        }
     }
+//
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//        int pos = mLayoutManager.getPosition(mRecyclerView.getChildAt(0));
+//        int scrollpos = ((LinearLayoutManager) mRecyclerView.getLayoutManager())
+//            .findFirstCompletelyVisibleItemPosition();
+//        Log.d(LOG_TAG, "pos="+pos+";scr="+scrollpos);
+//     }
 
 
-    public void restartLoader() {
-        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
-    }
 
 }
 

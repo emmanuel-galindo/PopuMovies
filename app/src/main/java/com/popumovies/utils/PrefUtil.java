@@ -27,7 +27,7 @@ public class PrefUtil {
         SharedPreferences settings = Prefs.get(context);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     static public synchronized void setInt(Context context, String key,
@@ -35,7 +35,7 @@ public class PrefUtil {
         SharedPreferences settings = Prefs.get(context);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     static public int getInt(Context context, String key) {
@@ -53,7 +53,7 @@ public class PrefUtil {
         SharedPreferences settings = Prefs.get(context);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(key, value);
-        editor.commit();
+        editor.apply();
     }
 
     static public boolean getBoolean(Context context, String key) {

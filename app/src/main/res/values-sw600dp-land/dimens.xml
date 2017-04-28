@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="column_width">200dp</dimen>
+    <dimen name="app_bar_height">271dp</dimen>
+</resources>

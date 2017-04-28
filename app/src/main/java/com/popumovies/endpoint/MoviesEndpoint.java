@@ -18,7 +18,7 @@ public interface MoviesEndpoint {
     Call<MoviesResults> topRatedList();
 
     @GET("movie/popular")
-    Call<MoviesResults> popularList();
+    Call<MoviesResults>     popularList();
 
     @GET("movie/{id}?append_to_response=videos,reviews")
     Call<Movie> movie(
