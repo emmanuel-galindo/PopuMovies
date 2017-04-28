@@ -1,0 +1,5 @@
+<resources>
+    <dimen name="column_width">300dp</dimen>
+    <dimen name="app_bar_height">339dp</dimen>
+    <dimen name="height_video_thumb">170dp</dimen>
+</resources>

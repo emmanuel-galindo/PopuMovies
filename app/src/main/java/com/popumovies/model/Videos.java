@@ -44,7 +44,7 @@ public class Videos {
         private int size;
         @SerializedName("type")
         private String type;
-        private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+        private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
         /**
          *

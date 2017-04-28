@@ -8,7 +8,7 @@ import java.net.URISyntaxException;
 /**
  * Created by manu on 5/3/16.
  */
-public class BaseRecyclerViewAdapterViewHolder extends RecyclerView.ViewHolder
+class BaseRecyclerViewAdapterViewHolder extends RecyclerView.ViewHolder
         implements View.OnClickListener {
 
     private ClickListener clickListener;
@@ -27,7 +27,7 @@ public class BaseRecyclerViewAdapterViewHolder extends RecyclerView.ViewHolder
          * @param v view that is clicked
          * @param position of the clicked item
          */
-        public void onClick(View v, int position) throws URISyntaxException;
+        void onClick(View v, int position) throws URISyntaxException;
     }
     /* Setter for listener. */
     public void setClickListener(ClickListener clickListener) {

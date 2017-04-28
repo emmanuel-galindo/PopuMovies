@@ -4,9 +4,9 @@ import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-public class VarColumnGridLayoutManager extends GridLayoutManager {
+class VarColumnGridLayoutManager extends GridLayoutManager {
 
-    private int minItemWidth;
+    private final int minItemWidth;
 
     public VarColumnGridLayoutManager(Context context, int minItemWidth) {
         super(context, 1);

@@ -30,7 +30,8 @@ public class VideoAdapter extends CursorRecyclerAdapter<VideoAdapter.ViewHolder>
     private final String LOG_TAG = VideoAdapter.class.getSimpleName();
 
 
-    private Context mContext;
+    private final Context mContext;
+    private final Picasso mPicasso;
 
     /**
      * Cache of the children views for a forecast list item.
@@ -54,13 +55,13 @@ public class VideoAdapter extends CursorRecyclerAdapter<VideoAdapter.ViewHolder>
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_video, parent, false);
-        ViewHolder vh = new ViewHolder(itemView);
-        return vh;
+        return new ViewHolder(itemView);
     }
 
-    public VideoAdapter(Context context, Cursor c, int flags) {
+    public VideoAdapter(Context context, Cursor c) {
         super(c);
         mContext = context;
+        mPicasso = new HelperOkHttpClient().getPicassoInstance(mContext);
     }
 
 
@@ -107,12 +108,12 @@ public class VideoAdapter extends CursorRecyclerAdapter<VideoAdapter.ViewHolder>
         Load the thumbnail. Here is a good explanation of the links
         http://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api
          */
+        //TODO: hardcode...
         String thumb = "http://img.youtube.com/vi/" +
                 cursor.getString(VideoEntry.COLUM_POS_KEY) +
                 "/1.jpg";
         Log.d(LOG_TAG, "Loading thumb => " + thumb);
-        Picasso picasso = HelperOkHttpClient.getPicassoInstance(mContext);
-        picasso.load(thumb)
+        mPicasso.load(thumb)
                 .into(holder.mThumbnail);
 //        Picasso.with(mContext).load(thumb)
 //                .into(holder.mThumbnail);

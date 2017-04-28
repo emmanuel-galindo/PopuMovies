@@ -21,12 +21,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 
-public class FetchMoviesTask extends AsyncTask<Void,Void,String> {
-    private static String LOG_TAG = FetchMoviesTask.class.getSimpleName();
+class FetchMoviesTask extends AsyncTask<Void,Void,String> {
+    private static final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
     private final String mSortBy;
-    Context mContext;
+    private final Context mContext;
 
-    public FetchMoviesTask(Context context,String sortBy ) {
+    private FetchMoviesTask(Context context, String sortBy) {
         super();
         mContext = context;
         mSortBy = sortBy;
@@ -131,11 +131,10 @@ public class FetchMoviesTask extends AsyncTask<Void,Void,String> {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
         }
-        return;
         // This will only happen if there was an error getting or parsing the forecast.
     }
 
-    public Void getMoviesDataFromJson(String forecastJsonStr)
+    private Void getMoviesDataFromJson(String forecastJsonStr)
             throws JSONException {
 
         final String TMDB_LIST = "results";

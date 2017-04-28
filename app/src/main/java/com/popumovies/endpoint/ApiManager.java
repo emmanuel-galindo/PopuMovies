@@ -22,14 +22,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Created by manu on 4/5/16.
  */
 public class ApiManager {
-    public final String LOG_TAG = ApiManager.class.getSimpleName();
+    private final String LOG_TAG = ApiManager.class.getSimpleName();
 
+    //TODO: hardcode alert??
     // Trailing slash is needed
     final static private String BASE_URL = "http://api.themoviedb.org/3/";
     final static private String API_KEY_LABEL = "api_key";
     final static private String API_KEY_VALUE = "ba7a9d0e2fb18d7d47b1b4bfaabc4d04";
 
-    private Retrofit retrofit;
+    private final Retrofit retrofit;
 
     public ApiManager() {
         Gson gson = new GsonBuilder()
@@ -62,20 +63,21 @@ public class ApiManager {
 ////        okHttpClientBuilder.addNetworkInterceptor(new StethoInterceptor());
 //        OkHttpClient okHttpClient = okHttpClientBuilder.build();
         OkHttpClient.Builder okHttpClientBuilder = HelperOkHttpClient.getOkHttpClientBuilder();
-        okHttpClientBuilder.addInterceptor(
-            new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    Request request = chain.request();
-                    HttpUrl url = request.url().newBuilder().addQueryParameter(
-                            API_KEY_LABEL, API_KEY_VALUE).build();
-                    request = request.newBuilder().url(url).build();
-                    Log.d(LOG_TAG, "url => " + url.toString());
-                    return chain.proceed(request);
-                }
-            }
-        );
-
+        if (okHttpClientBuilder.interceptors().size() == 0) {
+            okHttpClientBuilder.addInterceptor(
+                    new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            Request request = chain.request();
+                            HttpUrl url = request.url().newBuilder().addQueryParameter(
+                                    API_KEY_LABEL, API_KEY_VALUE).build();
+                            request = request.newBuilder().url(url).build();
+                            Log.d(LOG_TAG, "url => " + url.toString());
+                            return chain.proceed(request);
+                        }
+                    }
+            );
+        }
         return okHttpClientBuilder.build();
     }
 
@@ -83,7 +85,7 @@ public class ApiManager {
         return getRetrofit().create(MoviesEndpoint.class);
     }
 
-    public Retrofit getRetrofit() {
+    private Retrofit getRetrofit() {
         return retrofit;
     }
 }

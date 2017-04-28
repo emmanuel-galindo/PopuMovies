@@ -33,7 +33,7 @@ public class MovieContract {
 
     // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
     // the content provider.
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // Possible paths (appended to base content URI for possible URI's)
     // For instance, content://com..sunshine.app/movie/ is a valid path for
@@ -57,6 +57,7 @@ public class MovieContract {
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_POSTER_PATH = "poster_path";
+        public static final String COLUMN_BACKGROUND_PATH = "background_path";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String COLUMN_VOTE_COUNT = "vote_count";
         public static final String COLUMN_POPULARITY = "popularity";
@@ -69,10 +70,28 @@ public class MovieContract {
         public static final int COLUMN_POS_OVERVIEW = 4;
         public static final int COLUMN_POS_RELEASE_DATE = 5;
         public static final int COLUMN_POS_POSTER_PATH = 6;
-        public static final int COLUMN_POS_VOTE_AVERAGE = 7;
-        public static final int COLUMN_POS_VOTE_COUNT = 8;
-        public static final int COLUMN_POS_POPULARITY = 9;
-        public static final int COLUMN_POS_FAVORITE = 10;
+        public static final int COLUMN_POS_BACKGROUND_PATH = 7;
+        public static final int COLUMN_POS_VOTE_AVERAGE = 8;
+        public static final int COLUMN_POS_VOTE_COUNT = 9;
+        public static final int COLUMN_POS_POPULARITY = 10;
+        public static final int COLUMN_POS_FAVORITE = 11;
+
+        // Note: Per the custom bulkInsert, to allow coalesce to define favorite boolean
+        // favorite field should always be the last in this list
+        public static final String[] MOVIE_COLUMNS = {
+                TABLE_NAME + "." + _ID,
+                COLUMN_TMDB_ID,
+                COLUMN_TITLE,
+                COLUMN_ORIGINAL_TITLE,
+                COLUMN_OVERVIEW,
+                COLUMN_RELEASE_DATE,
+                COLUMN_POSTER_PATH,
+                COLUMN_BACKGROUND_PATH,
+                COLUMN_VOTE_AVERAGE,
+                COLUMN_VOTE_COUNT,
+                COLUMN_POPULARITY,
+                COLUMN_FAVORITE };
+
 
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE).build();
@@ -95,14 +114,12 @@ public class MovieContract {
             return CONTENT_URI.buildUpon().appendPath("favorite").build();
         }
         public static Uri buildMovieWithVideos(long id) {
-            Uri uri = ContentUris.withAppendedId(CONTENT_URI, id).buildUpon().
+            return ContentUris.withAppendedId(CONTENT_URI, id).buildUpon().
                     appendPath("video").build();
-            return uri;
         }
         public static Uri buildMovieWithReviews(long id) {
-            Uri uri = ContentUris.withAppendedId(CONTENT_URI, id).buildUpon().
+            return ContentUris.withAppendedId(CONTENT_URI, id).buildUpon().
                     appendPath("review").build();
-            return uri;
         }
     }
 
@@ -174,19 +191,22 @@ public class MovieContract {
         // this is the id of the movie related to this review. This is mapped by the application
         // as the relation key between this table and movie
         public static final String COLUMN_TMDB_ID = "tmdb_id";
+        public static final String COLUMN_REVIEW_ID = "review_id";
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_CONTENT = "content";
         public static final String COLUMN_URL = "url";
         //Columns default positions. When select * is used these index can be used.
         public static final int COLUMN_POS_ID = 0;
         public static final int COLUM_POS_TMDB_ID = 1;
-        public static final int COLUM_POS_AUTHOR = 2;
-        public static final int COLUM_POS_CONTENT = 3;
-        public static final int COLUM_POS_URL = 4;
+        public static final int COLUM_POS_REVIEW_ID = 2;
+        public static final int COLUM_POS_AUTHOR = 3;
+        public static final int COLUM_POS_CONTENT = 4;
+        public static final int COLUM_POS_URL = 5;
 
         public static final String[] REVIEW_COLUMNS = {
                 TABLE_NAME + "." + _ID,
                 TABLE_NAME + "." + COLUMN_TMDB_ID,
+                COLUMN_REVIEW_ID,
                 COLUMN_AUTHOR,
                 COLUMN_CONTENT,
                 COLUMN_URL

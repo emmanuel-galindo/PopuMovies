@@ -12,7 +12,7 @@ public class MoviesResults {
     private List<Movie> results = new ArrayList<Movie>();
     private int totalResults;
     private int totalPages;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private final Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      *

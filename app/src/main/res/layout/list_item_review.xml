@@ -17,21 +17,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/textview_list_item_author"
-        android:text="A review by Pepe"
         android:textAppearance="?android:textAppearanceSmall"
         android:padding="6dp"
-        android:background="#88e4db"
+        android:background="@color/colorPrimaryLight"
+        android:textColor="@color/white"
         android:textStyle="bold"
         />
     <com.popumovies.utils.ExpandableTextView
         android:id="@+id/textview_list_item_review"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/debug_text"
         android:fontFamily="sans-serif-condensed"
         android:textAppearance="?android:textAppearanceSmall"
         android:padding="6dp"
         />
-
     </LinearLayout>
 </FrameLayout>
