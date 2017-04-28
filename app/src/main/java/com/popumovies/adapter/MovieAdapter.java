@@ -135,8 +135,8 @@ public class MovieAdapter extends CursorRecyclerAdapter<MovieAdapter.ViewHolder>
         holder.posterView.setContentDescription(cursor.getString(
                 MovieEntry.COLUMN_POS_ORIGINAL_TITLE));
 
-        String title = cursor.getString(MovieEntry.COLUMN_POS_TITLE);
-        int fav = cursor.getInt(MovieEntry.COLUMN_POS_FAVORITE);
+//        String title = cursor.getString(MovieEntry.COLUMN_POS_TITLE);
+//        int fav = cursor.getInt(MovieEntry.COLUMN_POS_FAVORITE);
         // if favorite, show the star
         if (cursor.getInt(MovieEntry.COLUMN_POS_FAVORITE) != 0)
             holder.posterViewFavorite.setVisibility(View.VISIBLE);

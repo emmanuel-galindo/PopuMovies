@@ -65,7 +65,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
 
         mgr = new ApiManager();
 
-        List<Movie> results;
+//        List<Movie> results;
         MoviesResults page = new MoviesResults();
 //            Response<List<MoviesResults>> page = call.execute();
         //TODO: Implement a check on X-Rate-Limit (https://www.themoviedb.org/faq/api)
@@ -108,11 +108,11 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         MoviesResults page = new MoviesResults();
         if (idFilter == R.id.action_sort_popularity) {
             page = mgr.movies().popularList().execute().body();
-            idFilter = R.id.action_sort_votes;
+//            idFilter = R.id.action_sort_votes;
         }
         else if (idFilter == R.id.action_sort_votes) {
             page = mgr.movies().topRatedList().execute().body();
-            idFilter = R.id.action_sort_popularity;
+//            idFilter = R.id.action_sort_popularity;
         }
         return page;
     }
@@ -273,7 +273,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
             // But it does make debugging a *lot* easier if you print out the completed
             // buffer for debugging.
-            buffer.append(line + "\n");
+            buffer.append(line).append("\n");
         }
 
         if (buffer.length() == 0) {

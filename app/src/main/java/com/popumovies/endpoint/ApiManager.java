@@ -18,9 +18,6 @@ import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by manu on 4/5/16.
- */
 public class ApiManager {
     private final String LOG_TAG = ApiManager.class.getSimpleName();
 

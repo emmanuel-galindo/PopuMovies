@@ -24,6 +24,7 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -148,7 +149,7 @@ public class MovieProvider extends ContentProvider {
 
      */
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
 
         // Use the Uri Matcher to determine what kind of URI this is.
         final int match = sUriMatcher.match(uri);
@@ -168,8 +169,9 @@ public class MovieProvider extends ContentProvider {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
         // Here's the switch statement that, given a URI, will determine what kind of request it is,
         // and query the database accordingly.
@@ -283,8 +285,9 @@ public class MovieProvider extends ContentProvider {
         );
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
@@ -306,8 +309,9 @@ public class MovieProvider extends ContentProvider {
         return returnUri;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int rowsDeleted;
@@ -357,9 +361,10 @@ public class MovieProvider extends ContentProvider {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public int update(
-            Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+            @NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int rowsUpdated;
@@ -386,8 +391,9 @@ public class MovieProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
-    public int bulkInsert(Uri uri, ContentValues[] values) {
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int returnCount = 0;

@@ -7,9 +7,6 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
-/**
- * Created by manu on 4/5/16.
- */
 public interface MoviesEndpoint {
 
     // Request method and URL specified in the annotation

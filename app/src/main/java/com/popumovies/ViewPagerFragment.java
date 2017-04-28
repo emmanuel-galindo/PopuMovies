@@ -132,29 +132,20 @@ public class ViewPagerFragment extends Fragment
     }
 
 
-    public CursorPagerAdapter getPagerAdapter() {
-        return mPagerAdapter;
-    }
-
-    public long getCurrentMovieId() {
-        DetailActivityFragment df = (DetailActivityFragment) mPagerAdapter
-                .instantiateItem(mPager, mPager.getCurrentItem());
-        return df.getMovieId();
-
-    }
-
     public int getCurrentPosition() {
         return mPager.getCurrentItem();
 
     }
 
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onPause() {
         Log.d(LOG_TAG,"onPause()");
 
         // Remove the back (up) from the menu
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        if (((AppCompatActivity)getActivity()).getSupportActionBar() != null)
+            ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 
 //         For the case when the device is rotated, if two pane with this info

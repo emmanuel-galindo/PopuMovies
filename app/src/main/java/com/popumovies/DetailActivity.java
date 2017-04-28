@@ -52,7 +52,7 @@ public class DetailActivity extends AppCompatActivity
         Intent intent = getIntent();
 //        Uri movieUri = intent.getData();
         mPosition = intent.getIntExtra("pos", 0);
-        long movieId = intent.getLongExtra("movieId",0);
+//        long movieId = intent.getLongExtra("movieId",0);
 
         //if on tablet, it rotates, catch it here and send it to mainactivity
         //TODO: evaluate if it is better to redirect this when saving the state or in any other

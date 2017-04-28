@@ -41,8 +41,7 @@
         </activity>
         <activity
             android:name=".SwipeHelpActivity"
-            android:theme="@style/Theme.AppCompat.Translucent"
-            ></activity>
+            android:theme="@style/Theme.AppCompat.Translucent" />
         <!-- SyncAdapter's dummy authentication service -->
         <service android:name=".sync.MovieAuthenticatorService" android:exported="false">
             <intent-filter>

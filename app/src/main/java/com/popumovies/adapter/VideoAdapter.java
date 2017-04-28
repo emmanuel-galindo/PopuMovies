@@ -26,6 +26,7 @@ import java.net.URISyntaxException;
  * from a {@link Cursor} to a {@link android.widget.ListView}.
  */
 public class VideoAdapter extends CursorRecyclerAdapter<VideoAdapter.ViewHolder> {
+    //TODO: move to private keys resource file
     private static final String YOUTUBE_DEV_KEY = "AIzaSyAYPDK84iJv_dDiDr13V4MJ7eMKWYYVaGI";
     private final String LOG_TAG = VideoAdapter.class.getSimpleName();
 
@@ -85,8 +86,8 @@ public class VideoAdapter extends CursorRecyclerAdapter<VideoAdapter.ViewHolder>
                     Intent intent = YouTubeStandalonePlayer.createVideoIntent((Activity) mContext,
                             YOUTUBE_DEV_KEY, youtubeId, 0, true, true);
                     mContext.startActivity(intent);
-                    YouTubeInitializationResult errorReason =
-                            YouTubeStandalonePlayer.getReturnedInitializationResult(intent);
+//                    YouTubeInitializationResult errorReason =
+//                            YouTubeStandalonePlayer.getReturnedInitializationResult(intent);
                 } else {
 //                    if (availableReason.isUserRecoverableError()) {
 //                        availableReason.getErrorDialog((Activity) mContext, 1).show();

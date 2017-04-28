@@ -54,11 +54,11 @@ class FetchMoviesTask extends AsyncTask<Void,Void,String> {
             // get the sort_by preference
             int idSortBy = PrefUtil.getInt(
                     mContext, "sort_by", R.id.action_sort_popularity);
-            String sortBy;
-            if (idSortBy == R.id.action_sort_popularity)
-                sortBy = mContext.getString(R.string.sort_popularity);
-            else
-                sortBy = mContext.getString(R.string.sort_votes);
+//            String sortBy;
+//            if (idSortBy == R.id.action_sort_popularity)
+//                sortBy = mContext.getString(R.string.sort_popularity);
+//            else
+//                sortBy = mContext.getString(R.string.sort_votes);
 //            final String MOVIES_BASE_URL = "http://api.themoviedb.org/3/discover/movie?";
             final String MOVIES_BASE_URL = "http://api.themoviedb.org/3/movie/"+mSortBy+"?";
             final String API_KEY = "api_key";
@@ -91,7 +91,7 @@ class FetchMoviesTask extends AsyncTask<Void,Void,String> {
                 // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
                 // But it does make debugging a *lot* easier if you print out the completed
                 // buffer for debugging.
-                buffer.append(line + "\n");
+                buffer.append(line).append("\n");
             }
 
             if (buffer.length() == 0) {

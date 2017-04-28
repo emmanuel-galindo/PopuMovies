@@ -3,7 +3,6 @@ package com.popumovies;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -97,7 +96,7 @@ public class MainActivityFragment extends Fragment
         mRecyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mMovieAdapter);
-        RecyclerView.LayoutManager mLayoutManager = mRecyclerView.getLayoutManager();
+//        RecyclerView.LayoutManager mLayoutManager = mRecyclerView.getLayoutManager();
 
         return rootView;
     }
@@ -123,10 +122,10 @@ public class MainActivityFragment extends Fragment
         int item = PrefUtil.getInt(getActivity(), getString(R.string.pref_filter_label),
                 R.id.action_sort_popularity);
 
-        MenuItem menuItem = (MenuItem) menu.findItem(item);
+        MenuItem menuItem = menu.findItem(item);
         // FIXME: 4/5/16
         if (menuItem == null)
-            menuItem = (MenuItem) menu.findItem(R.id.action_sort_popularity);
+            menuItem = menu.findItem(R.id.action_sort_popularity);
 
         menuItem.setChecked(true);
         mMenu = menu;
@@ -282,13 +281,13 @@ public class MainActivityFragment extends Fragment
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
-        if (savedInstanceState instanceof Bundle) {
+        if (savedInstanceState != null) {
             // When restoring, as data is still not loaded, we just save the reference for
             // Loader.onLoadFinished
-            Parcelable mLayoutManagerSavedState = ((Bundle) savedInstanceState)
-                    .getParcelable(BUNDLE_RECYCLER_LAYOUT);
+//            Parcelable mLayoutManagerSavedState = ((Bundle) savedInstanceState)
+//                    .getParcelable(BUNDLE_RECYCLER_LAYOUT);
             if (savedInstanceState.containsKey("scrollpos")) {
-                int scrollToPos = ((Bundle) savedInstanceState)
+                int scrollToPos = savedInstanceState
                         .getInt("scrollpos");
                 setPosition(scrollToPos);
             }

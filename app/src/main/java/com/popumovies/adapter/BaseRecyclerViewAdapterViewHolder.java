@@ -5,9 +5,6 @@ import android.view.View;
 
 import java.net.URISyntaxException;
 
-/**
- * Created by manu on 5/3/16.
- */
 class BaseRecyclerViewAdapterViewHolder extends RecyclerView.ViewHolder
         implements View.OnClickListener {
 

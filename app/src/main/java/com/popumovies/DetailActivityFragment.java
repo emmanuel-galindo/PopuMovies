@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.DimenRes;
 import android.support.annotation.NonNull;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -35,9 +34,6 @@ import com.squareup.picasso.Picasso;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created by manu on 12/2/15.
- */
 public class DetailActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>{
 
@@ -120,7 +116,7 @@ public class DetailActivityFragment extends Fragment
         favoriteButton = (FloatingActionButton) mRootView.findViewById(R.id.button_fav);
 
         // Set Collapsing Toolbar layout to the screen
-        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
+//        CollapsingToolbarLayout collapsingToolbar = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
 
         RecyclerView mRecyclerViewVideo = (RecyclerView) mRootView.findViewById(R.id.recyclerview_video);
 //        mRecyclerViewVideo.setMinimumHeight(300);
@@ -145,9 +141,9 @@ public class DetailActivityFragment extends Fragment
         mReviewAdapter = new ReviewAdapter(getActivity(), null);
         mRecyclerViewReview.setAdapter(mReviewAdapter);
 
-        DetailActivityFragment mCallbacks = this;
+//        DetailActivityFragment mCallbacks = this;
 
-        TextView tv = (TextView) mRootView.findViewById(R.id.textview_movie_video_title);
+//        TextView tv = (TextView) mRootView.findViewById(R.id.textview_movie_video_title);
 
         // Detect if details are present in the arguments (ViewPager) or if they need to be
         // read from the database again (landscape, two pane)
@@ -347,7 +343,7 @@ public class DetailActivityFragment extends Fragment
     // bundle
     private void fillForm(Bundle arguments) {
 
-        String title = arguments.getString(MovieEntry.COLUMN_TITLE);
+//        String title = arguments.getString(MovieEntry.COLUMN_TITLE);
         String originalTitle = arguments.getString(MovieEntry.COLUMN_ORIGINAL_TITLE);
         Log.d(LOG_TAG, "fillForm/originalTitle => " + originalTitle);
         Date release_date = new Date(Long.parseLong(
@@ -356,7 +352,9 @@ public class DetailActivityFragment extends Fragment
         String backgroundPath = arguments.getString(MovieEntry.COLUMN_BACKGROUND_PATH);
         String voteAverage = arguments.getString(MovieEntry.COLUMN_VOTE_AVERAGE);
         String overView = arguments.getString(MovieEntry.COLUMN_OVERVIEW);
-        boolean favorite = (arguments.getString(MovieEntry.COLUMN_FAVORITE).equals("1"));
+        boolean favorite;
+        if ((arguments.getString(MovieEntry.COLUMN_FAVORITE).equals("1"))) favorite = true;
+        else favorite = false;
 
         // Showing the original title as Movie title
         titleView.setText(originalTitle);
