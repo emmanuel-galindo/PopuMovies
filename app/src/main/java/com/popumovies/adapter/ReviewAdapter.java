@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017 Emmanuel Galindo (https://emmanuel-galindo.github.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.popumovies.adapter;
 
 import android.content.Context;
@@ -14,13 +30,11 @@ import com.popumovies.utils.ExpandableTextView;
 import java.net.URISyntaxException;
 
 /**
- * {@link ReviewAdapter} exposes a list of weather forecasts
- * from a {@link Cursor} to a {@link android.widget.ListView}.
+ * {@link ReviewAdapter} exposes a list of movie reviews
+ * from a {@link CursorRecyclerAdapter} to a {@link android.support.v7.widget.RecyclerView}.
  */
 public class ReviewAdapter extends CursorRecyclerAdapter<ReviewAdapter.ViewHolder> {
-//    private static final String YOUTUBE_DEV_KEY = "AIzaSyAYPDK84iJv_dDiDr13V4MJ7eMKWYYVaGI";
     private final String LOG_TAG = ReviewAdapter.class.getSimpleName();
-
 
     private final Context mContext;
 
@@ -73,8 +87,6 @@ public class ReviewAdapter extends CursorRecyclerAdapter<ReviewAdapter.ViewHolde
         Load the thumbnail. Here is a good explanation of the links
         http://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-review-thumbnail-from-the-youtube-api
          */
-//        Picasso.with(mContext).load(thumb)
-//                .into(holder.mThumbnail);
         holder.mReviewText.setText(cursor.getString(ReviewEntry.COLUM_POS_CONTENT));
         holder.mReviewAuthor.setText(String.format(mContext.getString(R.string.label_areviewby),
                 cursor.getString(ReviewEntry.COLUM_POS_AUTHOR)));

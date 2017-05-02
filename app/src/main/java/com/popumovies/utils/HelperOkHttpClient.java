@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017 Emmanuel Galindo (https://emmanuel-galindo.github.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.popumovies.utils;
 
 import android.content.Context;
@@ -15,56 +31,44 @@ import okhttp3.Response;
 
 /**
  * This file contains code that should only be executed for buildType debug as
- * Stetho related interceptors, or debug flags (as picasso.setIndicatorsEnabled), etc
+ * Stetho related interceptors, or debug flags (as mPicasso.setIndicatorsEnabled), etc
  */
 public class HelperOkHttpClient {
-    private static OkHttpClient.Builder okHttpClientBuilder;
-    private Picasso picasso;
+
+    private static OkHttpClient.Builder mOkHttpClientBuilder;
+    private Picasso mPicasso;
 
     public HelperOkHttpClient() {
-
-
     }
 
     public static OkHttpClient.Builder getOkHttpClientBuilder() {
-        if (okHttpClientBuilder == null)
-            okHttpClientBuilder = new OkHttpClient.Builder();
-        return okHttpClientBuilder;
+        if (mOkHttpClientBuilder == null)
+            mOkHttpClientBuilder = new OkHttpClient.Builder();
+        return mOkHttpClientBuilder;
     }
 
     public Picasso getPicassoInstance(Context context) {
-//        OkHttpClient okHttpClient = getOkHttpClientBuilder().build();
-//        Picasso picasso = new Picasso.Builder(context)
-//                .downloader(new OkHttp3Downloader(okHttpClient))
-//                .build();
-
-        //todo: offline, this leads to app unstable, at the end too many open files
-        // maybe we need to put the builder somehwere else
-        if (picasso == null ) {
+        if (mPicasso == null ) {
             File httpCacheDirectory = new File(context.getCacheDir(), "responses");
             int cacheSize = 10 * 1024 * 1024;
             Cache cache = new Cache(httpCacheDirectory, cacheSize);
 
-            //        OkHttpClient okHttpClient = new OkHttpClient.Builder()
             OkHttpClient okHttpClient = getOkHttpClientBuilder()
                     .addNetworkInterceptor(new Interceptor() {
                         @Override
                         public Response intercept(Chain chain) throws IOException {
                             Response originalResponse = chain.proceed(chain.request());
-                            return originalResponse.newBuilder().header("Cache-Control", "max-age=" + (60 * 60 * 24 * 365)).build();
+                            return originalResponse.newBuilder().header(
+                                    "Cache-Control", "max-age=" + (60 * 60 * 24 * 365)).build();
                         }
                     })
                     .cache(cache)
                     .build();
 
-            //        okHttpClient.cache(new Cache(mainActivity.getCacheDir(), Integer.MAX_VALUE));
             OkHttp3Downloader okHttpDownloader = new OkHttp3Downloader(okHttpClient);
-            picasso = new Picasso.Builder(context).downloader(okHttpDownloader).build();
-            picasso.setIndicatorsEnabled(true);
+            mPicasso = new Picasso.Builder(context).downloader(okHttpDownloader).build();
+            mPicasso.setIndicatorsEnabled(true);
         }
-        return picasso;
-//        Picasso picasso = Picasso.with(context);
-//        picasso.setIndicatorsEnabled(true);
-//        return picasso;
+        return mPicasso;
     }
 }

@@ -32,14 +32,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailActivity"
-            android:label="@string/app_name"
-            >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
-        <activity
             android:name=".SwipeHelpActivity"
             android:theme="@style/Theme.AppCompat.Translucent" />
         <!-- SyncAdapter's dummy authentication service -->

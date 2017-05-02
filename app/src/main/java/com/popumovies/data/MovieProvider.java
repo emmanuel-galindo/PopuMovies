@@ -44,10 +44,6 @@ import static com.popumovies.data.MovieContract.VideoEntry.VIDEO_COLUMNS;
 public class MovieProvider extends ContentProvider {
     private static final String LOG_TAG = ContentProvider.class.getSimpleName();
 
-    // The URI Matcher used by this content provider.
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private MovieDbHelper mOpenHelper;
-
     private static final int MOVIE = 100;
     private static final int MOVIE_WITH_ID = 101;
     private static final int MOVIE_POPULAR = 102;
@@ -60,7 +56,11 @@ public class MovieProvider extends ContentProvider {
 
     private static final SQLiteQueryBuilder sMovieWithVideoQueryBuilder;
     private static final SQLiteQueryBuilder sMovieWithReviewQueryBuilder;
+    private static final SQLiteQueryBuilder sMovieQueryBuilder;
 
+    // The URI Matcher used by this content provider.
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
+    private MovieDbHelper mOpenHelper;
 
 
     static{
@@ -93,9 +93,6 @@ public class MovieProvider extends ContentProvider {
                         "." + ReviewEntry.COLUMN_TMDB_ID);
     }
 
-
-
-    private static final SQLiteQueryBuilder sMovieQueryBuilder;
     static{
         sMovieQueryBuilder = new SQLiteQueryBuilder();
         sMovieQueryBuilder.setTables(MovieEntry.TABLE_NAME);
@@ -104,7 +101,6 @@ public class MovieProvider extends ContentProvider {
     private static final String sMovieIdSelection =
             MovieEntry.TABLE_NAME +
                     "." + MovieEntry.COLUMN_ID + " = ?";
-
 
     private static final String sMovieTmdbIdSelection =
             MovieEntry.TABLE_NAME +
@@ -143,11 +139,6 @@ public class MovieProvider extends ContentProvider {
         return true;
     }
 
-    /*
-        Students: Here's where you'll code the getType function that uses the UriMatcher.  You can
-        test this by uncommenting testGetType in TestProvider.
-
-     */
     @Override
     public String getType(@NonNull Uri uri) {
 
@@ -155,7 +146,6 @@ public class MovieProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
 
         switch (match) {
-            // Student: Uncomment and fill out these two cases
             case MOVIE:
             case MOVIE_POPULAR:
             case MOVIE_HIGH_RATED:
@@ -403,21 +393,6 @@ public class MovieProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         normalizeDate(value);
-//                        long _id = db.insert(MovieEntry.TABLE_NAME, null, value);
-//                        if (_id != -1) {
-//                            returnCount++;
-//                        }
-                        /* Custom insert query to allow the use of coalesce to
-                        replace on conflict w/out removing the favorites flag, and updating the
-                        favorites data to current
-                         */
-//                        String INSERT_MOVIE = "INSERT INTO movie(popularity, background_path,vote_average,title," +
-//                                "original_title,tmdb_id,release_date,poster_path,vote_count,"+
-//                                "overview,favorite) VALUES (?,?,?,?,?,?,?,?,?,?," +
-//                                "coalesce((select favorite from movie where tmdb_id = ?),0))";
-//                        String[] cols = { "popularity","background_path","vote_average","title",
-//                                "original_title","tmdb_id","release_date","poster_path",
-//                                "vote_count","overview"};
 
                         List<String> cols = new ArrayList<String>(
                                 Arrays.asList(MovieEntry.MOVIE_COLUMNS));
@@ -434,7 +409,6 @@ public class MovieProvider extends ContentProvider {
                         // the space manually below
                         cols.remove(MovieEntry.COLUMN_FAVORITE);
                         Object[] bindArgs = null;
-//                        int size = (value != null && value.size() > 0) ? value.size() : 0;
                         if (size > 0) {
                             bindArgs = new Object[size];
                             int i = 0;

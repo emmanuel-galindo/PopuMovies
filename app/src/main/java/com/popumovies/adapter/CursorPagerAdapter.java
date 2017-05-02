@@ -11,9 +11,8 @@ import android.util.Log;
 public class CursorPagerAdapter<F extends Fragment> extends FragmentStatePagerAdapter {
     private final String LOG_TAG = getClass().getSimpleName();
     private final Class<F> fragmentClass;
+
     private Cursor cursor;
-//    private ViewPager mPager;
-//    private Map FragmentTagsPositions;
 
     public CursorPagerAdapter(FragmentManager fm, Class<F> fragmentClass, String[] projection, Cursor cursor) {
         super(fm);
@@ -38,10 +37,6 @@ public class CursorPagerAdapter<F extends Fragment> extends FragmentStatePagerAd
         for (int i = 0; i < cursor.getColumnCount(); ++i) {
             args.putString(cursor.getColumnName(i), cursor.getString(i));
         }
-//        args.putInt("position", position);
-//        for (int i = 0; i < projection.length; ++i) {
-//            args.putString(projection[i], cursor.getString(i));
-//        }
         frag.setArguments(args);
         return frag;
     }
@@ -54,16 +49,6 @@ public class CursorPagerAdapter<F extends Fragment> extends FragmentStatePagerAd
             return cursor.getCount();
     }
 
-    //    @Override
-//    public Object instantiateItem(ViewGroup container, int position) {
-//        Fragment frag = (Fragment) super.instantiateItem(container, position);
-//        FragmentTagsPositions.put(position, frag.getTag());
-//        return frag;
-//    }
-//
-//    public String getFragmentTagByPosition(int position) {
-//        return (String)FragmentTagsPositions.get(position);
-//    }
 
     public void swapCursor(Cursor c) {
         if (cursor == c)

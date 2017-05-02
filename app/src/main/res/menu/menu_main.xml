@@ -15,7 +15,7 @@
                 android:title="@string/action_favorites"
                 android:checkable="true" android:checked="false"/>
         </menu>
-        </item>
+     </item>
     <item android:id="@+id/action_refresh" android:title="@string/action_refresh"
-       app:showAsAction="never" />
+        app:showAsAction="ifRoom|collapseActionView" android:icon="@drawable/ic_refresh_white_24dp"/>
 </menu>

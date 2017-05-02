@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017 Emmanuel Galindo (https://emmanuel-galindo.github.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.popumovies;
 
 import android.content.Intent;
@@ -20,8 +36,6 @@ import com.popumovies.adapter.CursorPagerAdapter;
 import com.popumovies.data.MovieContract;
 import com.popumovies.utils.PrefUtil;
 
-
-
 /**
  * Nested Fragment solution
  * Based on http://stackoverflow.com/questions/13379194/how-to-add-a-fragment-inside-a-viewpager-using-nested-fragment-android-4-2
@@ -35,17 +49,12 @@ public class ViewPagerFragment extends Fragment
         implements
         LoaderManager.LoaderCallbacks<Cursor> {
     private static final String LOG_TAG = ViewPagerFragment.class.getSimpleName();
+    private static final int ACTIVITY_DETAIL_LOADER = 1;
 
     private CursorPagerAdapter mPagerAdapter;
     private ViewPager mPager;
-    private static final int ACTIVITY_DETAIL_LOADER = 1;
     private int mPosition;
 
-    public void setMovieId(long movieId) {
-        DetailActivityFragment df = (DetailActivityFragment) mPagerAdapter
-                .instantiateItem(mPager, mPager.getCurrentItem());
-        df.setMovieId(movieId);
-    }
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -78,9 +87,8 @@ public class ViewPagerFragment extends Fragment
         }
         ActionBar sab = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (sab != null) {
-//                getSupportActionBar().hide();
             sab.setDisplayShowTitleEnabled(false);
-            sab.setDisplayHomeAsUpEnabled(true);
+//            sab.setDisplayHomeAsUpEnabled(true);
         }
 
         mPager = (ViewPager) view.findViewById(R.id.viewPager);
@@ -92,6 +100,37 @@ public class ViewPagerFragment extends Fragment
         // or start a new one.
         LoaderManager.LoaderCallbacks<Cursor> mCallbacks = this;
         getLoaderManager().initLoader(ACTIVITY_DETAIL_LOADER, null, mCallbacks);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public void onPause() {
+        Log.d(LOG_TAG,"onPause()");
+
+        // Remove the back (up) from the menu
+        if (((AppCompatActivity)getActivity()).getSupportActionBar() != null)
+            ((AppCompatActivity)getActivity()).getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(false);
+
+//         For the case when the device is rotated, if two pane with this info
+//         it will show the detail in the right pane, and it will position the left list
+        DetailActivityFragment df = (DetailActivityFragment) mPagerAdapter
+                .instantiateItem(mPager, mPager.getCurrentItem());
+        ((ViewPagerFragment.Callback) getActivity()).setMovieId(df.getMovieId());
+        Log.d(LOG_TAG,"current item =>"+mPager.getCurrentItem());
+        ((ViewPagerFragment.Callback) getActivity()).setPosition(mPager.getCurrentItem());
+        super.onPause();
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+//        if (((AppCompatActivity)getActivity()).getSupportActionBar() != null)
+//            ((AppCompatActivity)getActivity()).getSupportActionBar()
+//                    .setDisplayHomeAsUpEnabled(true);
 
     }
 
@@ -99,9 +138,6 @@ public class ViewPagerFragment extends Fragment
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri movieUri;
         int idFilter = PrefUtil.getInt(getActivity(), getString(R.string.pref_filter_label));
-//        if (idFilter == R.id.action_sort_popularity)
-//            movieUri = MovieContract.MovieEntry.buildPopularMovieUri();
-//        else if (idFilter == R.id.action_favorites)
         if (idFilter == R.id.action_favorites)
             movieUri = MovieContract.MovieEntry.buildFavoriteMovieUri();
         else if (idFilter == R.id.action_sort_votes)
@@ -131,33 +167,15 @@ public class ViewPagerFragment extends Fragment
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-
     public int getCurrentPosition() {
         return mPager.getCurrentItem();
 
     }
 
-
-    @SuppressWarnings("ConstantConditions")
-    @Override
-    public void onPause() {
-        Log.d(LOG_TAG,"onPause()");
-
-        // Remove the back (up) from the menu
-        if (((AppCompatActivity)getActivity()).getSupportActionBar() != null)
-            ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-
-//         For the case when the device is rotated, if two pane with this info
-//         it will show the detail in the right pane, and it will position the left list
+    public void setMovieId(long movieId) {
         DetailActivityFragment df = (DetailActivityFragment) mPagerAdapter
                 .instantiateItem(mPager, mPager.getCurrentItem());
-        ((ViewPagerFragment.Callback) getActivity()).setMovieId(df.getMovieId());
-        Log.d(LOG_TAG,"current item =>"+mPager.getCurrentItem());
-        ((ViewPagerFragment.Callback) getActivity()).setPosition(mPager.getCurrentItem());
-        super.onPause();
-
-
+        df.setMovieId(movieId);
     }
 
 }

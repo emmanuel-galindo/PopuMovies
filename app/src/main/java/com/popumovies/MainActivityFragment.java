@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2017 Emmanuel Galindo (https://emmanuel-galindo.github.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.popumovies;
 
 import android.database.Cursor;
@@ -29,34 +45,14 @@ import com.popumovies.utils.PrefUtil;
  */
 public class MainActivityFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+    private static final String BUNDLE_RECYCLER_LAYOUT = "classname.recycler.layout";
+    private static final int MOVIE_LOADER = 0;
 
     private MovieAdapter mMovieAdapter;
     private RecyclerView mRecyclerView;
-    // --Commented out by Inspection (4/28/17 11:41 AM):private RecyclerView.Adapter mAdapter;
     private Menu mMenu;
-
-    // when the list is layed out, if mposition is > 0 it will be used to scroll to position
-//    private int mPosition;
     private int mPosition = ListView.INVALID_POSITION;
-//    private boolean mTwoPane;
-
-
-    private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
-    // --Commented out by Inspection (4/28/17 11:41 AM):private static final String SELECTED_KEY = "selected_position";
-    private static final String BUNDLE_RECYCLER_LAYOUT = "classname.recycler.layout";
-    private static final int MOVIE_LOADER = 0;
-    // --Commented out by Inspection (4/28/17 11:41 AM):private int mScrollToPos;
-    // --Commented out by Inspection (4/28/17 11:41 AM):private SwipeRefreshLayout mSwipeRefreshLayout;
-
-    public void setPositionInList(int pos) {
-        if (mRecyclerView.getLayoutManager() != null)
-            mRecyclerView.getLayoutManager().scrollToPosition(pos);
-    }
-
-    public void setPosition(int position) {
-        mPosition = position;
-    }
-
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -68,9 +64,6 @@ public class MainActivityFragment extends Fragment
          * DetailFragmentCallback for when an item has been selected.
          */
         void onItemSelected(int pos, long movieId);
-//        void initMoviePane(long movieId);
-//        int getPosition();
-
     }
 
     public MainActivityFragment() {
@@ -96,8 +89,6 @@ public class MainActivityFragment extends Fragment
         mRecyclerView.setHasFixedSize(true);
         mMovieAdapter = new MovieAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mMovieAdapter);
-//        RecyclerView.LayoutManager mLayoutManager = mRecyclerView.getLayoutManager();
-
         return rootView;
     }
 
@@ -115,15 +106,10 @@ public class MainActivityFragment extends Fragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_main, menu);
 
-        //TODO: Add a refresh button in the action bar or implement the swipe down for refresh
-
-        //TODO: this is a bug? the integer value of the layout items seems to change
-        //TODO: therefore the best seem to keep the key, not the int value
         int item = PrefUtil.getInt(getActivity(), getString(R.string.pref_filter_label),
                 R.id.action_sort_popularity);
 
         MenuItem menuItem = menu.findItem(item);
-        // FIXME: 4/5/16
         if (menuItem == null)
             menuItem = menu.findItem(R.id.action_sort_popularity);
 
@@ -132,14 +118,11 @@ public class MainActivityFragment extends Fragment
 
     }
 
-
-    //TODO: when a new sort order is selected, it should go back to the top of the list
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        // TODO: Prevent the user to press refresh when there's another refresh going on
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             updateMovie();
@@ -155,8 +138,6 @@ public class MainActivityFragment extends Fragment
             mMenu.findItem(R.id.action_sort_votes).setChecked(false);
             mMenu.findItem(R.id.action_favorites).setChecked(false);
             mMenu.findItem(id).setChecked(true);
-            //updateMovie();
-//            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
             restartLoader();
         }
         else if (id == android.R.id.home) {
@@ -171,24 +152,37 @@ public class MainActivityFragment extends Fragment
     private void updateMovie() {
         Log.d(LOG_TAG, "in updateMovie");
         MovieSyncAdapter.syncImmediately(getActivity());
-//        FetchMoviesTask moviesTask = new FetchMoviesTask(getActivity(),
-//                getActivity().getString(R.string.sort_popularity));
-//        moviesTask.execute();
-//        moviesTask = new FetchMoviesTask(getActivity(),
-//                getActivity().getString(R.string.sort_votes));
-//        moviesTask.execute();
-
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("scrollpos")) {
+                int scrollToPos = savedInstanceState
+                        .getInt("scrollpos");
+                setPosition(scrollToPos);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        // - Make use of the LayoutManager capabilities to help saving the scroll position
+        // When rotating, it will be only useful when returning to the orientation in where it was set.
+        if (mRecyclerView != null) {
+            outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, mRecyclerView.getLayoutManager().onSaveInstanceState());
+            int scrollpos = ((GridLayoutManager) mRecyclerView.getLayoutManager())
+                    .findFirstCompletelyVisibleItemPosition();
+            outState.putInt("scrollpos", scrollpos);
+        }
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-//                    String sortBy = Utility.getPreferredLocation(getActivity());
-
-        // Sort order:  Ascending, by popularity.
-
-//        String sortOrder;
-        Uri movieUri;        
+        Uri movieUri;
         int idFilter = PrefUtil.getInt(getActivity(),getString(R.string.pref_filter_label));
         if (idFilter == R.id.action_sort_popularity)
             movieUri = MovieEntry.buildPopularMovieUri();
@@ -203,45 +197,18 @@ public class MainActivityFragment extends Fragment
                 null, null, null, null);
     }
 
-
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        // Swap the new cursor in.  (The framework will take care of closing the
-        // old cursor once we return.)
-        //todo: only do this when it is not favorite listing
         int idFilter = PrefUtil.getInt(getActivity(),getString(R.string.pref_filter_label));
         // if there's no data (as in initial load), refresh
         if (data.getCount() > 0 || idFilter == R.id.action_favorites) {
             mMovieAdapter.swapCursor(data);
             if (mPosition != ListView.INVALID_POSITION) {
+                Log.d(LOG_TAG,"onLoadFinished - scrollToPosition " + mPosition);
                 mRecyclerView.scrollToPosition(mPosition);
             }
         } else {
             updateMovie();
         }
-
-//        getActivity().findViewById(R.id.content).setVisibility(View.VISIBLE);
-
-        // if in twopane, we will init the fragment with the first item from list
-//        if (mTwoPane) {
-        //TODO: fucking normalize the use of twoPane. This option is the GO for me (now)
-//        boolean twoPane = getResources().getBoolean(R.bool.has_two_panes);
-//        if (twoPane && data.moveToFirst()) {
-//            long id = data.getLong(data.getColumnIndexOrThrow("_id"));
-//            ((MainActivityFragment.Callback) getActivity()).initMoviePane(id);
-//            //TODO: in twopane, if no records, show a gray screen in movie detail fragment
-//        }
-//        }
-
-        // As data is already loaded, restore using the layoutmanager inner saved state
-//        if (mLayoutManagerSavedState != null)
-//            mLayoutManager.onRestoreInstanceState(mLayoutManagerSavedState);
-//        if (mScrollToPos > 0) {
-//            mRecyclerView.scrollToPosition(mScrollToPos);
-//        }
-
-        // SmoothScrollToPosition does not work as expected. If the selected position in land
-        // with 4 columns is 8, when rotate to portrait with 2 cols it will show 6/8 of the
-        // 6&7 positions. The desired is to show 8-12 positions.
 
     }
 
@@ -257,83 +224,14 @@ public class MainActivityFragment extends Fragment
     }
 
 
-//    @Override
-//    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-//        super.onViewStateRestored(savedInstanceState);
-//
-//        if(savedInstanceState != null)
-//        {
-//            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
-//            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
-//        }
-//    }
-
-//    @Override
-//    protected void onRestoreInstanceState(Parcelable state) {
-//        if (state instanceof Bundle) {
-//            Parcelable savedRecyclerLayoutState = ((Bundle) state).getParcelable(BUNDLE_RECYCLER_LAYOUT);
-//        }
-//        super.onRestoreInstanceState(state);
-//    }
-
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            // When restoring, as data is still not loaded, we just save the reference for
-            // Loader.onLoadFinished
-//            Parcelable mLayoutManagerSavedState = ((Bundle) savedInstanceState)
-//                    .getParcelable(BUNDLE_RECYCLER_LAYOUT);
-            if (savedInstanceState.containsKey("scrollpos")) {
-                int scrollToPos = savedInstanceState
-                        .getInt("scrollpos");
-                setPosition(scrollToPos);
-            }
-        }
+    public void setPositionInList(int pos) {
+        if (mRecyclerView.getLayoutManager() != null)
+            mRecyclerView.getLayoutManager().scrollToPosition(pos);
     }
 
-
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//
-//        if (mLayoutManagerSavedState != null) {
-//            mLayoutManager.onRestoreInstanceState(mLayoutManagerSavedState);
-//        }
-//    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        // - Make use of the LayoutManager capabilities to help saving the scroll position
-        // When rotating, it will be only useful when returning to the orientation in where it was set.
-        if (mRecyclerView != null) {
-            outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, mRecyclerView.getLayoutManager().onSaveInstanceState());
-            int scrollpos = ((GridLayoutManager) mRecyclerView.getLayoutManager())
-                    .findFirstCompletelyVisibleItemPosition();
-            outState.putInt("scrollpos", scrollpos);
-        }
-        super.onSaveInstanceState(outState);
-        // When tablets rotate, the currently selected list item needs to be saved.
-        // When no item is selected, mPosition will be set to Listview.INVALID_POSITION,
-        // so check for that before storing.
-//        if (mPosition != ListView.INVALID_POSITION) {
-//            outState.putInt(SELECTED_KEY, mPosition);
-//        }
+    public void setPosition(int position) {
+        mPosition = position;
     }
-//
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        int pos = mLayoutManager.getPosition(mRecyclerView.getChildAt(0));
-//        int scrollpos = ((LinearLayoutManager) mRecyclerView.getLayoutManager())
-//            .findFirstCompletelyVisibleItemPosition();
-//        Log.d(LOG_TAG, "pos="+pos+";scr="+scrollpos);
-//     }
-
-
-
 }
 
 
