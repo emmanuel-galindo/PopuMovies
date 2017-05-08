@@ -1,1 +1,5 @@
 /build
+api-keys.xml
+**/*/res/values/api-keys.xml
+/app/src/main/res/values/api-keys.xml
+/src/main/res/values/api-keys.xml
