@@ -295,7 +295,7 @@ public class MovieProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
+//        getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
     }
 
@@ -325,7 +325,7 @@ public class MovieProvider extends ContentProvider {
         }
         // Because a null deletes all rows
         if (rowsDeleted != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
+//            getContext().getContentResolver().notifyChange(uri, null);
         }
         return rowsDeleted;
     }
@@ -428,7 +428,7 @@ public class MovieProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
+                // getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
             case VIDEO:
                 db.beginTransaction();
@@ -443,7 +443,9 @@ public class MovieProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
+                // Commented as we only notify on sync method after everything is done
+                // so the refresh indicator can be removed
+//                getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
             case REVIEW:
                 db.beginTransaction();
@@ -458,7 +460,7 @@ public class MovieProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
+//                getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
             default:
                 return super.bulkInsert(uri, values);

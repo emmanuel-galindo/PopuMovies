@@ -242,7 +242,7 @@ public class MainActivity
             // the list repositions correctly
             mf.setPosition(vp.getCurrentPosition());
         }
-
+        
         super.onBackPressed();
     }
 

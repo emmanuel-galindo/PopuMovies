@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TMDB_API_URL">http://api.themoviedb.org/3/</string>
+    <string name="TMDB_API_KEY_LABEL">api_key</string>
+    <string name="TMDB_POSTER_URL">http://image.tmdb.org/t/p/</string>
+    <string name="YOUTUBE_WATCH_URL">http://www.youtube.com/watch?v=</string>
+    <string name="YOUTUBE_THUMB_URL">http://img.youtube.com/vi/</string>
+</resources>

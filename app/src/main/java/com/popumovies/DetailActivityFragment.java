@@ -230,6 +230,7 @@ public class DetailActivityFragment extends Fragment
         favorite = (arguments.getString(MovieEntry.COLUMN_FAVORITE).equals("1"));
 
         // Showing the original title as Movie title
+//        mTitleView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
         mTitleView.setText(originalTitle);
 
         // extract the year

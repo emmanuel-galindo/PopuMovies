@@ -30,7 +30,7 @@ import com.popumovies.data.MovieContract.ReviewEntry;
 class MovieDbHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 20;
+    private static final int DATABASE_VERSION = 28;
 
     private static final String DATABASE_NAME = "popumovies.db";
 

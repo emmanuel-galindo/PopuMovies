@@ -99,6 +99,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
             e1.printStackTrace();
         }
         addMoviesToDB(page.getResults(), false);
+        getContext().getContentResolver().notifyChange(MovieEntry.CONTENT_URI, null);
     }
 
     /**
@@ -140,7 +141,7 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
         Vector<ContentValues> vectorReviewContentValues = new Vector<>(results.size());
         for(int i = 0; i < results.size(); i++) {
             Movie movie = results.get(i);
-            Log.d(LOG_TAG,"Processing movie: " + movie.getTitle());
+            //Log.d(LOG_TAG,"Processing movie: " + movie.getTitle());
             Movie movieWithExtras;
             try {
                 movieWithExtras = mgr.movies().movie(movie.getId()).execute().body();
@@ -233,10 +234,10 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
                         vectorVideoContentValues.toArray(new ContentValues[vectorVideoContentValues.size()]));
             }
 
-            if ( vectorReviewContentValues.size() > 0 ) {
-                getContext().getContentResolver().bulkInsert(ReviewEntry.CONTENT_URI,
-                        vectorReviewContentValues.toArray(new ContentValues[vectorReviewContentValues.size()]));
-            }
+//            if ( vectorReviewContentValues.size() > 0 ) {
+//                getContext().getContentResolver().bulkInsert(ReviewEntry.CONTENT_URI,
+//                        vectorReviewContentValues.toArray(new ContentValues[vectorReviewContentValues.size()]));
+//            }
 
         }
         Log.d(LOG_TAG, "MovieTask Complete. " + vectorMovieContentValues.size() + " Inserted");
@@ -297,8 +298,8 @@ public class MovieSyncAdapter extends AbstractThreadedSyncAdapter {
              * then call ContentResolver.setIsSyncable(account, AUTHORITY, 1)
              * here.
              */
-
-            onAccountCreated(newAccount, context);
+            //Sync disabled!! uncomment to schedule the sync
+//            onAccountCreated(newAccount, context);
         }
         return newAccount;
     }

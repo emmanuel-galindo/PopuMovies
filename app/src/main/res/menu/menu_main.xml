@@ -17,5 +17,5 @@
         </menu>
      </item>
     <item android:id="@+id/action_refresh" android:title="@string/action_refresh"
-        app:showAsAction="ifRoom|collapseActionView" android:icon="@drawable/ic_refresh_white_24dp"/>
+        app:showAsAction="never" android:icon="@drawable/ic_refresh_white_24dp"/>
 </menu>

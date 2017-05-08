@@ -36,7 +36,7 @@ import okhttp3.Response;
 public class HelperOkHttpClient {
 
     private static OkHttpClient.Builder mOkHttpClientBuilder;
-    private Picasso mPicasso;
+    private static Picasso mPicasso;
 
     public HelperOkHttpClient() {
     }
@@ -67,7 +67,7 @@ public class HelperOkHttpClient {
 
             OkHttp3Downloader okHttpDownloader = new OkHttp3Downloader(okHttpClient);
             mPicasso = new Picasso.Builder(context).downloader(okHttpDownloader).build();
-            mPicasso.setIndicatorsEnabled(true);
+//            mPicasso.setIndicatorsEnabled(true);
         }
         return mPicasso;
     }

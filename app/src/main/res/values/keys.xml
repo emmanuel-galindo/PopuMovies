@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TMDB_API_KEY_VALUE">ba7a9d0e2fb18d7d47b1b4bfaabc4d04</string>
+    <string name="YOUTUBE_DEV_KEY_VALUE">AIzaSyAYPDK84iJv_dDiDr13V4MJ7eMKWYYVaGI</string>
+</resources>

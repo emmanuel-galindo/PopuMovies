@@ -24,6 +24,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -53,6 +54,7 @@ public class MainActivityFragment extends Fragment
     private RecyclerView mRecyclerView;
     private Menu mMenu;
     private int mPosition = ListView.INVALID_POSITION;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -84,6 +86,7 @@ public class MainActivityFragment extends Fragment
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -125,7 +128,10 @@ public class MainActivityFragment extends Fragment
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            updateMovie();
+            if (! mSwipeRefreshLayout.isRefreshing()) {
+                mSwipeRefreshLayout.setRefreshing(true);
+                updateMovie();
+            }
             return true;
         }
         else if (
@@ -198,9 +204,11 @@ public class MainActivityFragment extends Fragment
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(LOG_TAG,"onLoadFinished()");
         int idFilter = PrefUtil.getInt(getActivity(),getString(R.string.pref_filter_label));
         // if there's no data (as in initial load), refresh
         if (data.getCount() > 0 || idFilter == R.id.action_favorites) {
+            mSwipeRefreshLayout.setRefreshing(false);
             mMovieAdapter.swapCursor(data);
             if (mPosition != ListView.INVALID_POSITION) {
                 Log.d(LOG_TAG,"onLoadFinished - scrollToPosition " + mPosition);
