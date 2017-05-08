@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="TMDB_API_KEY_VALUE">PUTYOURKEY</string>
-    <string name="YOUTUBE_DEV_KEY_VALUE">PUTYOURKEY</string>
-</resources>
