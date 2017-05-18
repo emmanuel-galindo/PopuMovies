@@ -41,3 +41,10 @@ It shows horizontal swipe gesture to navigate between movies, trailers horizonta
 
 ## Screenshot of Landscape two pane for 7 inch screen
 ![Screenshot landscape](/screenshot_landscape.png)
+
+
+## Requirements
+If you want to build and actually get it working you need TheMovieDB and Youtube API keys stored in res/api-keys.xml (see the _sample.xml)
+- https://www.themoviedb.org/account/signup
+- https://developers.google.com/youtube/v3/getting-started
+- TheMovieDB API Key
