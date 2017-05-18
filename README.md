@@ -36,7 +36,7 @@ It shows horizontal swipe gesture to navigate between movies, trailers horizonta
 
 ![Screencast portrait](/screencast_portrait.gif)
 
-## Screenshot of Portrait detail for 3.5 inch screen
+## Screenshot of Portrait detail for 3.5 inch screen (API 10!!)
 ![Screenshot portrait 3.5](/screenshot_portrait_35.png)
 
 ## Screenshot of Landscape two pane for 7 inch screen
