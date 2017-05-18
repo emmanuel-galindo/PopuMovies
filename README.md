@@ -28,4 +28,7 @@ The goal of this app is to show highest rated movies ever and most popular movie
 - JSON calls are modeled with Retrofit2
 - It is done with love =)
 
-## Screenshots
+## Screencasts
+
+
+### Portrait mode in 5,5 inch showing Swipe between movies and favorites features
