@@ -14,8 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <resources>
-    <string name="TMDB_API_KEY_VALUE">PUT YOUR KEY HERE</string>
-    <string name="YOUTUBE_DEV_KEY_VALUE">PUT YOUR KEY HERE</string>
-</resources>
+    <!--
+        <string name="TMDB_API_KEY_VALUE">PUT YOUR KEY HERE</string>
+        <string name="YOUTUBE_DEV_KEY_VALUE">PUT YOUR KEY HERE</string>
+      -->
+    </resources>
