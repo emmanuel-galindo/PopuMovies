@@ -26,14 +26,18 @@ The goal of this app is to show highest rated movies ever and most popular movie
 - Tutorial view when first time
 - It keeps HTTP calls to minimum by just no getting the same information twice
 - JSON calls are modeled with Retrofit2
+- Collapsing toolbar
 - Horizontal scroll for trailers
 - Expandable Textview for reviews
 - It is done with love =)
 
 ## Screencast of Portrait mode in 5,5 inch screen
-It shows Swipe between movies, trailers horizontal scroll, expandable textview and favorites features
+It shows horizontal swipe gesture to navigate between movies, trailers horizontal scroll, expandable textview and favorites features
+
 ![Screencast portrait](/screencast_portrait.gif)
 
 ## Screenshot of Portrait detail for 3.5 inch screen
+![Screenshot portrait 3.5](/screenshot_portrait_35.png)
 
 ## Screenshot of Landscape two pane for 7 inch screen
+![Screenshot landscape](/screenshot_landscape.png)
